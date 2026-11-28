@@ -30,6 +30,8 @@
   <b>TSVG playground</b><span class="muted">Timeseries Scalable Vector Graphics 0.1</span>
   <span class="grow"></span>
   <a href="../spec/">Spec</a><a href="../gallery/">Gallery</a><a href="../gallery/edit-kit.html">Edit Kit catalogue</a><a href="https://github.com/Panth977/tsvg">GitHub</a>
+  <select id="ttsEngine" title="Voice engine (runs in this browser, nothing is sent to a server)"><option value="kokoro">Kokoro 82M (~90 MB, best)</option><option value="sanotts">sanoTTS (small, fast)</option></select>
+  <button id="tts" title="Speak every caption in this browser with the chosen engine and write &lt;voices&gt;">Voice from captions</button>
   <label class="btn">Open .tsvg / .tsvgz<input type="file" id="file" accept=".tsvg,.tsvgz,.xml,.zip" hidden></label>
 </header>
 <div class="play">
@@ -53,15 +55,15 @@ const docUrl = new URL(new URLSearchParams(location.search).get('doc') || '../ex
 const frame = document.getElementById('frame'), src = document.getElementById('src'), msg = document.getElementById('msg');
 const player = new TSVGPlayer(frame, { base: docUrl, onOptions: showOpts });
 const libOpts = { base: docUrl, fetchText: async (u) => { const r = await fetch(u); if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); } };
-let original = '';
+let original = '', lastDoc = null;
 function showOpts(o) { document.getElementById('optline').textContent = Object.entries(o).map(([k, v]) => k + '=' + v).join(' · '); }
 async function apply() {
-  let libs = null;
+  let libs = null; lastDoc = null;
   if (TSVG.needsLibs(src.value)) { try { libs = await TSVG.loadLibs(src.value, libOpts); } catch (e) { msg.className = 'msg err'; msg.textContent = e.message; return; } }
   const r = TSVG.validate(src.value, { libs, base: docUrl });
   msg.className = 'msg ' + (r.ok ? (r.warnings.length ? 'warn' : '') : 'err');
   msg.textContent = r.ok ? (r.warnings.length ? r.warnings.slice(0, 4).join('\n') : 'ok · ' + r.stats.duration + 's · ' + r.stats.variants + ' variants') : r.errors.slice(0, 4).join('\n');
-  if (!r.doc) return;
+  if (!r.doc) return; lastDoc = r.doc;
   try { await player.load(src.value); showOpts(player.opts); } catch (e) { msg.className = 'msg err'; msg.textContent = e.message; }
 }
 async function boot() {
@@ -88,6 +90,25 @@ document.getElementById('file').onchange = async (e) => {
   if (TSVGZip.isZip(b)) { await player.loadPackage(b); original = TSVGZip.text((await TSVGZip.read(b)).get(TSVGZip.MAIN)); src.value = original; apply(); }
   else { original = new TextDecoder().decode(b); src.value = original; apply(); }
 };
+// Voice from captions: the player speaks each <say> (current language) in this browser with the chosen engine
+// (TSVGPlayer.generateVoices: Kokoro or sanoTTS, same model + voice + hash as `tsvg bake`); we write the clips into <voices>.
+// Clips live for this tab only (tsvg bake makes files on disk).
+async function voiceFromCaptions() {
+  const btn = document.getElementById('tts'); clearTimeout(deb); await apply(); if (!lastDoc) { msg.className = 'msg err'; msg.textContent = 'fix the errors first'; return; }
+  btn.disabled = true; msg.className = 'msg'; msg.textContent = 'speaking every caption in this browser (progress in the player\'s Voice menu; the first run downloads the model)…';
+  try {
+    player.openMenu('__voice');
+    const made = await player.generateVoices(document.getElementById('ttsEngine').value), lang = Object.keys(made)[0].split('|')[1];
+    const voices = Object.assign({}, lastDoc.voices); for (const k of Object.keys(voices)) if (k.endsWith('|' + lang)) delete voices[k]; Object.assign(voices, made);
+    const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    const block = '<voices>\n' + Object.entries(voices).sort().map(([k, v]) => { const [say, l] = k.split('|'); return `    <voice say="${esc(say)}" lang="${l}" src="${esc(v.src)}" dur="${(+v.dur).toFixed(2)}" hash="${v.hash}" engine="${v.engine}"/>`; }).join('\n') + '\n  </voices>';
+    const re = /<voices\b[\s\S]*?<\/voices>|<voices\s*\/>/;
+    src.value = re.test(src.value) ? src.value.replace(re, block) : src.value.replace(/\n?<\/tsvg>\s*$/, '\n\n  ' + block + '\n</tsvg>\n');
+    await apply();
+  } catch (e) { msg.className = 'msg err'; msg.textContent = 'voice: ' + e.message; }
+  btn.disabled = false;
+}
+document.getElementById('tts').onclick = voiceFromCaptions;
 boot();
 </script>
 </body>

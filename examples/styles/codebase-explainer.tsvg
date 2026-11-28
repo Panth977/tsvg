@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Style: codebase explainer (tsvg:tech, Oizom theme, wide stage). How a feature really works, for the dev team:
+     real logos, one blue focus at a time, the code that proves each claim, the rows it writes, and an honest ending
+     (In short + what we checked / what is still open). A made-up system: web app → API → Postgres + Redis.
+     Logos: devicon (MIT) via skills/codebase-explainer/scripts/logo.mjs. -->
+<tsvg version="0.10" title="Auth: how the session cache works">
+  <import src="tsvg:tech" as="tx"/>
+  <options>
+    <option id="lang" label="Language" default="en"><choice id="en" label="English" tts="kokoro:af_heart"/></option>
+    <option id="theme" label="Theme" default="oizom"><choice id="oizom" label="Paper"/><choice id="oizom-dark" label="Editor dark"/></option>
+  </options>
+
+  <timeline>
+    <!-- 1 · login: the request, the check, the one row it writes -->
+    <tx:beat id="a" stage="wide" chapter="Login" kicker="AUTH · SESSION CACHE"
+             say="When you log in, the web app / sends your email and password to the API. / The API checks the password / against the users table in Postgres. / If it matches, it writes one new row / to the sessions table.">
+      <group y="110">
+      <tx:tile x="420" y="300" src="images/logos/svelte.png" label="Web app" sub="svelte" at="=cue('a.0')" hl="=tx:on(cue('a.0') + 0.4, cue('a.1'))"/>
+      <tx:wire d="M505 300 L815 300" at="=cue('a.1')" hl="=tx:on(cue('a.1'), cue('a.2'))"/>
+      <tx:packet x1="505" y1="300" x2="815" y2="300" label="POST /login" at="=cue('a.1') + 0.5" d="1.4"/>
+      <tx:tile x="900" y="300" src="images/logos/deno.png" dark="1" label="API" sub="api/src/auth" at="=cue('a.1') + 0.3" hl="=tx:on(cue('a.2'), cue('a.3'))"/>
+      <tx:wire d="M985 280 C1150 280 1180 160 1315 160" at="=cue('a.3')" hl="=tx:on(cue('a.3'), cue('a.4'))"/>
+      <tx:tile x="1400" y="160" src="images/logos/postgres.png" label="Postgres" at="=cue('a.3') + 0.2"/>
+      <tx:label x="1660" y="160" text="users" mono="1" sub="email · password_hash" at="=cue('a.3') + 0.5" hl="=tx:on(cue('a.3') + 0.5, cue('a.4'))"/>
+      <tx:code x="460" y="540" w="860" title="sessions · one new row" size="28" at="=cue('a.4')" mark="=cue('a.4') + 0.4"
+               lines="id          ← 42 :: hl | user_id     ← 7 | expires_at  ← now + 7 days"/>
+      <tx:label x="1560" y="600" text="sessions" mono="1" sub="the table it writes" tx="1340" ty="600" at="=cue('a.5')" hl="=tx:on(cue('a.5'), sdur)"/>
+      </group>
+    </tx:beat>
+
+    <!-- 2 · every request after: Postgres once, then Redis for fifteen minutes; logout clears it -->
+    <tx:beat id="b" stage="wide" chapter="Session cache" kicker="AUTH · SESSION CACHE"
+             say="Every request after that / reads your session, / the first time from Postgres, / then keeps it in Redis / for fifteen minutes. / In session dot ts, / the key lives for 900 seconds. / Logging out deletes that key / at once.">
+      <group y="110">
+      <tx:tile x="420" y="300" src="images/logos/svelte.png" label="Web app" sub="svelte"/>
+      <tx:tile x="900" y="300" src="images/logos/deno.png" dark="1" label="API" sub="api/src/auth" hl="=tx:on(cue('b.1'), cue('b.2'))"/>
+      <tx:tile x="1400" y="160" src="images/logos/postgres.png" label="Postgres"/>
+      <tx:wire d="M505 300 L815 300" at="0"/>
+      <tx:packet x1="505" y1="300" x2="815" y2="300" label="GET /orders" at="=cue('b.0')" d="1.2"/>
+      <tx:wire d="M985 280 C1150 280 1180 160 1315 160" at="0" hl="=tx:on(cue('b.2'), cue('b.3'))"/>
+      <tx:wire d="M985 320 C1150 320 1180 560 1315 560" at="=cue('b.3')" hl="=tx:on(cue('b.3'), cue('b.4'))"/>
+      <tx:tile x="1400" y="560" src="images/logos/redis.png" label="Redis" at="=cue('b.3') + 0.2"/>
+      <tx:label x="1400" y="770" text="session:42" mono="1" at="=cue('b.4')" hl="=tx:on(cue('b.4'), cue('b.5'))" op="=1 - 0.65*tx:grow(cue('b.8'), 0.3)"/>
+      <tx:label x="1650" y="560" text="15 min" mono="1" size="44" at="=cue('b.4') + 0.3" hl="=tx:on(cue('b.4') + 0.3, cue('b.5'))"/>
+      <tx:code x="140" y="540" w="1000" size="28" title="session.ts" at="=cue('b.5')" mark="=cue('b.6')"
+               lines="// keep the session close to the API | await cache.set(key, session, |   { ttl: 900 })  // seconds :: hl"/>
+      <tx:wire d="M1300 770 L1500 770" at="=cue('b.7') + 0.4" d2="0.3" hl="1" sw="5"/>
+      <line x1="1300" y1="770" x2="1500" y2="770" stroke="$bad" sw="7" at="=cue('b.7') + 0.4"><anim prop="draw" from="0" to="1" dur="0.3"/></line>
+      </group>
+    </tx:beat>
+
+    <!-- 3 · ending: one sentence for standup, then what we checked and what is still open -->
+    <tx:beat id="c" stage="wide" chapter="In short" kicker="AUTH · SESSION CACHE" pad="1.5"
+             say="So Postgres stays the source, / and Redis only holds a short copy. / One thing we have not checked: / what happens when Redis is down.">
+      <group y="=-140*tx:grow(cue('c.2') - 0.2, 0.5)">
+        <tx:sum x="960" y="380" w="1200" text="[Postgres]($focus) is the source. Redis holds a [short copy]($focus)." at="0.1"/>
+      </group>
+      <tx:qs x="410" y="440" w="1100" at="=cue('c.2')" openat="=cue('c.3')"
+             items="done :: Logout deletes the key — read in the code | open :: What happens when Redis is down? — not checked"/>
+    </tx:beat>
+  </timeline>
+
+  <!-- written by `tsvg bake`: one recorded clip per <say> line and language -->
+  <voices>
+    <voice say="a.0" lang="en" src="voice/codebase-explainer/en/a.0.ebc472a6bf.m4a" dur="1.66" hash="ebc472a6bf" engine="kokoro:af_heart"/>
+    <voice say="a.1" lang="en" src="voice/codebase-explainer/en/a.1.e02405a800.m4a" dur="2.77" hash="e02405a800" engine="kokoro:af_heart"/>
+    <voice say="a.2" lang="en" src="voice/codebase-explainer/en/a.2.1c6ebd44dc.m4a" dur="1.83" hash="1c6ebd44dc" engine="kokoro:af_heart"/>
+    <voice say="a.3" lang="en" src="voice/codebase-explainer/en/a.3.a22b36edcf.m4a" dur="2.07" hash="a22b36edcf" engine="kokoro:af_heart"/>
+    <voice say="a.4" lang="en" src="voice/codebase-explainer/en/a.4.fb2e119219.m4a" dur="1.92" hash="fb2e119219" engine="kokoro:af_heart"/>
+    <voice say="a.5" lang="en" src="voice/codebase-explainer/en/a.5.7d63b91cb1.m4a" dur="1.28" hash="7d63b91cb1" engine="kokoro:af_heart"/>
+    <voice say="b.0" lang="en" src="voice/codebase-explainer/en/b.0.0d02df44cd.m4a" dur="1.45" hash="0d02df44cd" engine="kokoro:af_heart"/>
+    <voice say="b.1" lang="en" src="voice/codebase-explainer/en/b.1.9c90cab180.m4a" dur="1.11" hash="9c90cab180" engine="kokoro:af_heart"/>
+    <voice say="b.2" lang="en" src="voice/codebase-explainer/en/b.2.a454191240.m4a" dur="1.58" hash="a454191240" engine="kokoro:af_heart"/>
+    <voice say="b.3" lang="en" src="voice/codebase-explainer/en/b.3.08b16f03b6.m4a" dur="1.41" hash="08b16f03b6" engine="kokoro:af_heart"/>
+    <voice say="b.4" lang="en" src="voice/codebase-explainer/en/b.4.0d39223352.m4a" dur="1.17" hash="0d39223352" engine="kokoro:af_heart"/>
+    <voice say="b.5" lang="en" src="voice/codebase-explainer/en/b.5.d1b04eff80.m4a" dur="1.51" hash="d1b04eff80" engine="kokoro:af_heart"/>
+    <voice say="b.6" lang="en" src="voice/codebase-explainer/en/b.6.b55807775a.m4a" dur="2.15" hash="b55807775a" engine="kokoro:af_heart"/>
+    <voice say="b.7" lang="en" src="voice/codebase-explainer/en/b.7.2c3bc205b5.m4a" dur="1.56" hash="2c3bc205b5" engine="kokoro:af_heart"/>
+    <voice say="b.8" lang="en" src="voice/codebase-explainer/en/b.8.8e6dab2f03.m4a" dur="0.87" hash="8e6dab2f03" engine="kokoro:af_heart"/>
+    <voice say="c.0" lang="en" src="voice/codebase-explainer/en/c.0.ed8de2d14d.m4a" dur="1.66" hash="ed8de2d14d" engine="kokoro:af_heart"/>
+    <voice say="c.1" lang="en" src="voice/codebase-explainer/en/c.1.9baa6520ea.m4a" dur="2.18" hash="9baa6520ea" engine="kokoro:af_heart"/>
+    <voice say="c.2" lang="en" src="voice/codebase-explainer/en/c.2.50e07c758a.m4a" dur="1.45" hash="50e07c758a" engine="kokoro:af_heart"/>
+    <voice say="c.3" lang="en" src="voice/codebase-explainer/en/c.3.1a78c856c8.m4a" dur="1.81" hash="1a78c856c8" engine="kokoro:af_heart"/>
+  </voices>
+</tsvg>

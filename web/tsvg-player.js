@@ -27,6 +27,7 @@
     exitFull: '<path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
     chevron: '<path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
     left: '<path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+    mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
     check: '<path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
   };
   const svg = (name, cls) => `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"${cls ? ` class="${cls}"` : ''}>${I[name]}</svg>`;
@@ -78,7 +79,13 @@
   .vol:hover input,.vol:focus-within input{width:72px;opacity:1;margin:0 6px 0 2px}
   [data-a=rate]{font-size:13px;font-weight:600;width:auto!important;padding:0 8px;border-radius:8px}
   .cc-on [data-a=cc]{box-shadow:inset 0 -3px 0 -1px #ff2d48}
-  .narrow .wideonly,.wideonly.hidden{display:none!important}
+  .narrow .wideonly,.wideonly.hidden,.row .hidden{display:none!important}
+  .toast{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 24px);width:max-content;background:#1c1c1ef2;border-radius:12px;padding:8px 8px 8px 14px;font-size:13px;line-height:1.35;box-shadow:0 6px 24px #0008;pointer-events:auto;z-index:2}
+  .toast.on{display:flex}
+  .toast button{border-radius:8px;padding:6px 10px;font-size:13px;font-weight:600;background:#ffffff1f}
+  .toast button.go{background:#fff;color:#000}
+  .toast button.x{background:none;opacity:.7;padding:6px 8px}
+  .menu .note{padding:8px 14px;font-size:12.5px;opacity:.75;line-height:1.4;white-space:normal;max-width:300px}
   .wide .narrowonly{display:none!important}
   .cc{position:absolute;left:50%;bottom:var(--ccb,16px);transform:translateX(-50%);width:max-content;max-width:86%;text-align:center;pointer-events:none;font-size:var(--ccs,16px);transition:bottom .2s}
   .show .cc{--ccb:var(--ccb-show,80px)}
@@ -135,6 +142,7 @@
               <button class="wideonly" data-a="play2" aria-label="Play">${svg('play')}</button>
               <div class="vol"><button data-a="mute" aria-label="Mute (m)">${svg('vol')}</button><input class="wideonly" type="range" min="0" max="1" step="0.05" value="1" aria-label="Volume"></div>
               <span class="time"></span><span class="chap"></span>
+              <button class="hidden" data-a="voice" aria-label="Narration voice">${svg('mic')}</button>
               <button data-a="cc" aria-label="Captions (c)">${svg('cc')}</button>
               <button class="wideonly" data-a="rate" aria-label="Playback speed">1×</button>
               <button data-a="menu" aria-label="Settings">${svg('gear')}</button>
@@ -144,6 +152,7 @@
         </div>
         <div class="zoomtag" title="Reset zoom"></div>
         <div class="menu" role="menu"></div>
+        <div class="toast" role="status"></div>
         <div class="err"></div>
       </div>`;
       host.appendChild(this.el);
@@ -162,10 +171,13 @@
     async load(xml) {
       // imports / components: load the libraries (tsvg:<name> from jsr.io at this engine's version), flatten, serve their files
       if (TSVG.needsLibs(xml)) {
-        const o = { base: this.base, fetchText: async (u) => { const r = await fetch(u); if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); } };
+        // root.TSVG_FILES (dist/tsvg-libs.js): the built-in libraries bundled by URL, for pages that cannot fetch (claude.ai artifacts)
+        const reg = root.TSVG_FILES || {};
+        const o = { base: this.base, fetchText: async (u) => { if (typeof reg[u] === 'string') return reg[u]; const r = await fetch(u); if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); } };
         const libs = await TSVG.loadLibs(xml, o); const f = TSVG.flatten(xml, libs, o);
         if (f.errors.length) throw new Error(f.errors[0]);
-        for (const [p, u] of Object.entries(f.files)) if (!this.files[p]) this.files[p] = u;
+        const blobOf = (e) => { const s = atob(e.b64); const b = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return URL.createObjectURL(new Blob([b], { type: e.type })); };
+        for (const [p, u] of Object.entries(f.files)) if (!this.files[p]) this.files[p] = reg[u] && reg[u].b64 ? blobOf(reg[u]) : u;
         xml = f.xml;
       }
       const doc = TSVG.parse(xml);
@@ -185,6 +197,7 @@
       await Promise.race([this.loadFonts(), new Promise((r) => setTimeout(r, 3000))]);
       this.t = Math.min(this.t, this.tl.duration);
       this.buildTicks(); this.syncLines(); this.renderMenu(); this.draw();
+      if (this.controls) { this.q('[data-a=voice]').classList.toggle('hidden', !this.lines.length); if (root.speechSynthesis && !this._vc) { this._vc = 1; speechSynthesis.addEventListener('voiceschanged', () => this.renderMenu()); } }
       if (this.playing) this.ensureAudio().then(() => this.syncAudio(true));
       return doc;
     }
@@ -302,9 +315,73 @@
       if (!root.speechSynthesis || this.muted) return;
       const mix = this.doc.mixes[this.opts.mix]; if (mix && mix.voice === 0) return;
       for (const l of this.lines) if (!l.clip && prev < l.start && l.start <= now) {
-        const v = speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith(l.lang)); if (!v) continue;
+        const vs = speechSynthesis.getVoices(); const v = vs.find((v) => v.voiceURI === this.ttsVoice) || vs.find((v) => v.lang.toLowerCase().startsWith(l.lang)); if (!v) continue;
         const u = new SpeechSynthesisUtterance(l.text); u.voice = v; u.lang = v.lang; u.rate = this.rate; u.volume = this.volume; speechSynthesis.speak(u);
       }
+    }
+    // ── voice: browser speech voices, or generate clips in this browser (Kokoro / sanoTTS) for every spoken line ──
+    voiceRow() {
+      const lang = this.opts.lang || 'en', g = this.gen;
+      const vs = root.speechSynthesis ? speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith(lang)) : [];
+      const made = this.lines.length && this.lines.every((l) => l.clip);
+      const choices = Object.entries(VOICE_ENGINES).map(([id, e]) => ({ id: 'gen:' + id, label: (made && this.genEngine === id ? 'Made with ' : 'Generate with ') + e.label }))
+        .concat(vs.slice(0, 12).map((v) => ({ id: v.voiceURI, label: 'Browser: ' + v.name })));
+      const cur = g ? g.msg : made ? (this.genEngine ? VOICE_ENGINES[this.genEngine].label.split(' ')[0] : 'Recorded') : (vs.find((v) => v.voiceURI === this.ttsVoice) || vs[0] || { name: 'None' }).name;
+      const note = g ? g.msg : this.genErr ? this.genErr : made ? 'Every line has a voice clip.' : vs.length ? 'Lines without a clip are read by your browser\'s voice. Generate makes natural voice clips in this browser (nothing is uploaded).' : 'Your browser has no voice for this language. Generate makes voice clips in this browser (nothing is uploaded).';
+      return { id: '__voice', label: 'Voice', cur, note, choices, val: made && this.genEngine ? 'gen:' + this.genEngine : this.ttsVoice || (vs[0] && vs[0].voiceURI) };
+    }
+    // speak every line of the current language with engine (kokoro | sanotts); clips become blob URLs, <voices> entries
+    // join the document (scene timing follows them). Returns { 'key|lang': { src, dur, hash, engine } } (what tsvg bake writes).
+    async generateVoices(name) {
+      const eng = VOICE_ENGINES[name]; if (!eng || this.gen) return;
+      const lang = this.opts.lang || 'en', ENGINE = name + ':' + eng.voice, set = (msg) => { this.gen = { msg }; this.renderMenu(); if (this._toast === 'gen') this.toast(msg); };
+      this.genErr = null;
+      try {
+        set('Loading ' + eng.label + '…');
+        const speak = (Player.speakers[name] = Player.speakers[name] || eng.load());
+        const fn = await speak.catch((e) => { delete Player.speakers[name]; throw e; });
+        const lines = this.lines.slice(), out = {};
+        for (let i = 0; i < lines.length; i++) {
+          const l = lines[i]; set(`Speaking ${i + 1}/${lines.length}…`);
+          const hash = (await sha1(name + '|' + eng.voice + '|' + l.speak)).slice(0, 10), path = 'tts/' + hash + '.wav'; // same hash as tsvg bake
+          let dur = Player.clipDur[path];
+          if (!dur || !this.files[path]) { const r = await fn(l.speak); this.files[path] = URL.createObjectURL(wavBlob(r.samples, r.rate)); dur = Player.clipDur[path] = r.samples.length / r.rate; }
+          out[l.key + '|' + lang] = this.doc.voices[l.key + '|' + lang] = { src: path, dur, hash, engine: ENGINE };
+        }
+        if (this.doc.views) this.doc.views.clear(); // re-time scenes to the new clips
+        this.genEngine = name; this.gen = null;
+        this.t = Math.min(this.t, this.tl.duration); this.buildTicks(); this.syncLines(); if (this.ac) { this.buildClips(); this.syncAudio(true); }
+        this.renderMenu(); this.draw(); return out;
+      } catch (e) {
+        this.gen = null;
+        this.genErr = /fetch|network|load|import/i.test(String(e && e.message)) ? 'Could not download ' + eng.label + ' here (this page blocks downloads, e.g. a claude.ai artifact, or you are offline). Use a browser voice, or download this page and open it from your computer.' : 'Voice: ' + (e && e.message || e);
+        this.renderMenu(); throw e;
+      }
+    }
+    // first play of a video with lines that have no clip: say how it will sound and offer a natural voice
+    async voiceHint() {
+      if (!this.controls || this._hinted || !this.lines.some((l) => !l.clip)) return; this._hinted = true;
+      const lang = this.opts.lang || 'en', has = root.speechSynthesis && speechSynthesis.getVoices().some((v) => v.lang.toLowerCase().startsWith(lang));
+      const msg = has ? 'Narration is read by your browser\'s voice.' : 'This device has no voice for the narration.';
+      if (await canDownload()) this.toast(msg, [['go', 'Natural voice', () => this.naturalVoice()], ['', 'More…', () => { this.toast(); this.openMenu('__voice'); }]]);
+      else this.toast(has ? msg : msg + ' Captions are on.', has ? [['', 'Choose voice', () => { this.toast(); this.openMenu('__voice'); }]] : [], 7000);
+    }
+    async naturalVoice() {
+      const was = this.playing; if (was) this.pause(); this._toast = 'gen'; this.toast('Loading voice…', []);
+      try { await this.generateVoices('sanotts'); this._toast = null; this.toast('Natural voice ready.', null, 2500); if (was) this.play(); }
+      catch (e) { this._toast = null; this.toast(this.genErr || String(e), [['', 'Choose voice', () => { this.toast(); this.openMenu('__voice'); }]], 9000); }
+    }
+    // toast(text, [[cls, label, fn]…], hideAfterMs): a small card at the top of the player; toast() hides it
+    toast(text, buttons, ms) {
+      const el = this.q('.toast'); clearTimeout(this._toastT);
+      if (text == null) { el.classList.remove('on'); return; }
+      if (buttons !== undefined || !el.classList.contains('on')) {
+        el.innerHTML = `<span class="t"></span>` + (buttons || []).map((b, i) => `<button class="${b[0]}" data-i="${i}">${esc(b[1])}</button>`).join('') + (ms ? '' : `<button class="x" data-i="x" aria-label="Dismiss">✕</button>`);
+        el.onclick = (e) => { e.stopPropagation(); const b = e.target.closest('button'); if (!b) return; if (b.dataset.i === 'x') return this.toast(); buttons[+b.dataset.i][2](); };
+        el.onpointerdown = (e) => e.stopPropagation();
+      }
+      el.querySelector('.t').textContent = text; el.classList.add('on');
+      if (ms) this._toastT = setTimeout(() => el.classList.remove('on'), ms);
     }
     setVolume(v) { this.volume = Math.min(1, Math.max(0, v)); if (this.volume > 0) this.muted = false; this.applyMix(); this.ui(); }
     toggleMute() { this.muted = !this.muted; if (!this.muted && this.volume === 0) this.volume = 0.5; this.applyMix(); this.ui(); }
@@ -314,6 +391,7 @@
       if (this.t >= this.tl.duration - 0.05) this.t = 0;
       this.playing = true; this.p.classList.add('playing'); await this.ensureAudio();
       this.clock = performance.now(); this.syncAudio(true); this.loop(); this.ui(); this.showControls(false);
+      this.voiceHint();
     }
     pause() { this.playing = false; this.p.classList.remove('playing'); this.stopAudio(); this.ui(); this.showControls(true); }
     toggle() { this.playing ? this.pause() : this.play(); }
@@ -413,6 +491,7 @@
       for (const o of this.doc.options) { const c = o.choices.find((x) => x.id === this.opts[o.id]); rows.push({ id: o.id, label: this.str(o.label), cur: c ? this.str(c.label) : this.opts[o.id], choices: o.choices.map((x) => ({ id: x.id, label: this.str(x.label) })), val: this.opts[o.id] }); }
       // chapters (0.10): jump to any chapter from the menu
       const chs = this.tl.chapters; if (chs.length > 1) { const cur = chs.filter((c) => c.t <= this.t + 1e-6).pop(); rows.unshift({ id: '__chapter', label: 'Chapters', cur: cur ? this.str(cur.label) : '', choices: chs.map((c, i) => ({ id: String(i), label: fmtT(c.t) + '  ' + this.str(c.label) })), val: cur ? String(chs.indexOf(cur)) : '' }); }
+      if (this.lines.length) rows.push(this.voiceRow());
       if (this.doc.layouts.length > 1) rows.push({ id: '__layout', label: 'Layout', cur: this.layoutPref === 'auto' ? 'Auto' : this.layoutPref, choices: [{ id: 'auto', label: 'Auto (fit screen)' }].concat(this.doc.layouts.map((l) => ({ id: l.id, label: l.id + ' · ' + l.w + '×' + l.h }))), val: this.layoutPref });
       return rows;
     }
@@ -421,7 +500,7 @@
       const m = this.q('.menu'); const rows = this.menuRows(); const sub = this.menuSub && rows.find((r) => r.id === this.menuSub);
       if (!sub) m.innerHTML = rows.map((r) => `<button class="item" role="menuitem" data-row="${esc(r.id)}"><span class="k">${esc(r.label)}</span><span class="v">${esc(r.cur)}</span>${svg('chevron')}</button>`).join('');
       else m.innerHTML = `<button class="item head" data-back="1">${svg('left')}<span class="k">${esc(sub.label)}</span></button>` +
-        sub.choices.map((c) => `<button class="item${c.id === sub.val ? ' on' : ''}" role="menuitemradio" aria-checked="${c.id === sub.val}" data-g="${esc(sub.id)}" data-c="${esc(c.id)}"><span class="ck">${svg('check')}</span><span class="k">${esc(c.label)}</span></button>`).join('');
+        (sub.note ? `<div class="note">${esc(sub.note)}</div>` : '') + sub.choices.map((c) => `<button class="item${c.id === sub.val ? ' on' : ''}" role="menuitemradio" aria-checked="${c.id === sub.val}" data-g="${esc(sub.id)}" data-c="${esc(c.id)}"><span class="ck">${svg('check')}</span><span class="k">${esc(c.label)}</span></button>`).join('');
     }
     openMenu(sub) { this.menuSub = sub || null; this.menuDirect = !!sub; this.renderMenu(); this.q('.menu').classList.add('open'); this.p.classList.add('menu-open'); this.showControls(true); }
     closeMenu() { this.q('.menu').classList.remove('open'); this.p.classList.remove('menu-open'); this.menuSub = null; this.showControls(true); }
@@ -429,6 +508,7 @@
       if (g === '__layout') { this.layoutPref = c; this.zoom = 1; this.panX = this.panY = 0; }
       else if (g === '__rate') { this.setRate(+c); }
       else if (g === '__cc') { this.cc = c === 'on'; }
+      else if (g === '__voice') { if (c.startsWith('gen:')) { this.generateVoices(c.slice(4)).catch(() => {}); return; } this.ttsVoice = c; }
       else if (g === '__chapter') { const ch = this.tl.chapters[+c]; if (ch) this.seek(ch.t); }
       else { this.opts[g] = c; this.t = Math.min(this.t, this.tl.duration); this.buildTicks(); this.syncLines(); if (g === 'mix') this.applyMix(); if (this.playing) this.ensureAudio().then(() => this.syncAudio(true)); }
       if (this.onOptions) this.onOptions(this.opts);
@@ -455,7 +535,7 @@
         play: () => this.toggle(), play2: () => this.toggle(),
         back: () => { this.seek(this.t - 10); this.ripple('l'); }, fwd: () => { this.seek(this.t + 10); this.ripple('r'); },
         cc: () => { this.cc = !this.cc; this.renderMenu(); this.ui(); },
-        rate: () => this.openMenu('__rate'), menu: () => (this.p.classList.contains('menu-open') ? this.closeMenu() : this.openMenu()),
+        rate: () => this.openMenu('__rate'), voice: () => this.openMenu('__voice'), menu: () => (this.p.classList.contains('menu-open') ? this.closeMenu() : this.openMenu()),
         fs: () => this.fullscreen(), mute: () => this.toggleMute(),
       };
       this.sr.querySelectorAll('[data-a]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); act[b.dataset.a](); this.showControls(true); }));
@@ -468,7 +548,7 @@
         e.stopPropagation(); const b = e.target.closest('button'); if (!b) return;
         if (b.dataset.back) { this.menuSub = null; this.renderMenu(); }
         else if (b.dataset.row) { this.menuSub = b.dataset.row; this.menuDirect = false; this.renderMenu(); }
-        else if (b.dataset.g) { this.setOption(b.dataset.g, b.dataset.c); this.menuSub = null; this.renderMenu(); if (this.menuDirect || this.p.classList.contains('narrow')) this.closeMenu(); }
+        else if (b.dataset.g) { this.setOption(b.dataset.g, b.dataset.c); if (b.dataset.c.startsWith('gen:')) return; this.menuSub = null; this.renderMenu(); if (this.menuDirect || this.p.classList.contains('narrow')) this.closeMenu(); }
       });
       this.q('.menu-bg').addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); this.closeMenu(); });
       // scrubber: drag (mouse or touch) with a live preview frame; hover previews too
@@ -546,5 +626,30 @@
     const e = (p.split('.').pop() || '').toLowerCase();
     return { ogg: 'audio/ogg', opus: 'audio/ogg', mp3: 'audio/mpeg', m4a: 'audio/mp4', wav: 'audio/wav', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', svg: 'image/svg+xml', gif: 'image/gif', ttf: 'font/ttf', otf: 'font/otf', woff: 'font/woff', woff2: 'font/woff2', mp4: 'video/mp4', m4v: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime' }[e] || 'application/octet-stream';
   }
+  Player.speakers = {}; Player.clipDur = {}; // per page: engines load once, clips are reused across documents
+  // in-browser TTS engines, loaded on demand from jsdelivr (Kokoro: same model, voice and hash as `tsvg bake`)
+  const VOICE_ENGINES = {
+    kokoro: { label: 'Kokoro (best, ~90 MB once)', voice: 'af_heart', async load() {
+      const { KokoroTTS } = await import('https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm'), gpu = !!navigator.gpu; // WebGPU fp32 (~310 MB), else WASM q8 (~90 MB)
+      const t = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', { dtype: gpu ? 'fp32' : 'q8', device: gpu ? 'webgpu' : 'wasm' });
+      return async (text) => { const a = await t.generate(text, { voice: 'af_heart' }); return { samples: a.audio, rate: a.sampling_rate }; }; // ponytail: one generate per line (~510 tokens max)
+    } },
+    sanotts: { label: 'sanoTTS (small, fast)', voice: 'heart', async load() {
+      const base = 'https://cdn.jsdelivr.net/npm/sanotts-web@0.3.0/dist/', { SanoTTS } = await import(base + 'index.js'), t = await SanoTTS.load({ assetBase: base });
+      return async (text) => { const r = await t.synthesize(text, { voice: 'heart', maxSeconds: 30 }); return { samples: r.samples, rate: r.sampleRate }; }; // 30 s per line: the nano runtime's cap
+    } },
+  };
+  function wavBlob(samples, rate) {
+    const b = new DataView(new ArrayBuffer(44 + samples.length * 2)), w = (o, t) => [...t].forEach((c, i) => b.setUint8(o + i, c.charCodeAt(0)));
+    w(0, 'RIFF'); b.setUint32(4, 36 + samples.length * 2, true); w(8, 'WAVEfmt '); b.setUint32(16, 16, true); b.setUint16(20, 1, true); b.setUint16(22, 1, true);
+    b.setUint32(24, rate, true); b.setUint32(28, rate * 2, true); b.setUint16(32, 2, true); b.setUint16(34, 16, true); w(36, 'data'); b.setUint32(40, samples.length * 2, true);
+    for (let i = 0; i < samples.length; i++) b.setInt16(44 + i * 2, Math.max(-1, Math.min(1, samples[i])) * 0x7fff, true);
+    return new Blob([b], { type: 'audio/wav' });
+  }
+  // can this page download (voice models)? claude.ai artifacts block every fetch
+  let dl = null;
+  function canDownload() { return (dl = dl || fetch('https://cdn.jsdelivr.net/npm/sanotts-web@0.3.0/package.json', { method: 'HEAD' }).then((r) => r.ok, () => false)); }
+  async function sha1(t) { return [...new Uint8Array(await crypto.subtle.digest('SHA-1', new TextEncoder().encode(t)))].map((x) => x.toString(16).padStart(2, '0')).join(''); }
+  Player.voiceEngines = VOICE_ENGINES;
   root.TSVGPlayer = Player;
 })(typeof window !== "undefined" ? window : globalThis);

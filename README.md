@@ -37,7 +37,8 @@
 | [`editor/`](editor) | Visual editor (`tsvg edit`) and live preview (`tsvg watch`) pages |
 | [`examples/demo/`](examples/demo) | The demo: 6 scenes, en + gu voices, gradients, masks, clip, shadow, fonts, a photo |
 | [`libs/`](libs) | Built-in libraries: `base`, `report`, `explainer`, `charts`, `icons`, `fx` (components + styles) |
-| [`skill/tsvg/SKILL.md`](skill/tsvg/SKILL.md) | Agent skill: how an AI agent writes, checks and ships a TSVG video |
+| [`skills/`](skills) | Agent skills: [`tsvg`](skills/tsvg/SKILL.md) (asks which style, then writes, checks and ships a TSVG video), [`tech-explainer`](skills/tech-explainer/SKILL.md) (why / how tech explainers, any format), [`codebase-explainer`](skills/codebase-explainer/SKILL.md) (how a feature in your code works, for the dev team) |
+| [`.claude-plugin/`](.claude-plugin) | Claude Code plugin + marketplace manifests: install the skill and CLI with `/plugin` ([below](#claude-code-plugin)) |
 | [`tests/`](tests) | Conformance cases and golden frames |
 
 ## For agents (and people in a hurry)
@@ -47,9 +48,18 @@ tsvg new my-report                 # report template on the tsvg:report library:
 tsvg check my-report/my-report.tsvg  # compiler: errors with line numbers + "did you mean", off-frame / overlapping text
 tsvg make  my-report/my-report.tsvg  # check → bake voices → contact sheets (one PNG per layout) → my-report.tsvgz
 tsvg lib report                    # the components of a library, one line each
-tsvg styles                        # 60 style templates; tsvg new <dir> --style <id>
+tsvg styles                        # 62 style templates; tsvg new <dir> --style <id>
 ```
-No rendering or encoding: `make` takes seconds. The agent skill is in [`skill/tsvg/SKILL.md`](skill/tsvg/SKILL.md).
+No rendering or encoding: `make` takes seconds. The agent skill is in [`skills/tsvg/SKILL.md`](skills/tsvg/SKILL.md).
+
+### Claude Code plugin
+
+This repo is a Claude Code plugin marketplace. Install the skills and the CLI in one step:
+
+```
+/plugin install tsvg --marketplace Panth977/tsvg
+```
+(older Claude Code: `/plugin marketplace add Panth977/tsvg`, then `/plugin install tsvg@tsvg`). Then ask Claude for a video, e.g. "make a TSVG explaining our login flow". The first `check`/`make` runs `npm install` inside the plugin (playwright-core, uses your installed Chrome; set `TSVG_CHROME` for Chromium/Brave). Narration needs `ffmpeg` + Kokoro; without it, `make --no-bake` ships captions only.
 
 ## Libraries: write the content, import the look
 
@@ -71,6 +81,7 @@ A library (`.tsvgl`) packages **components with props**, **styles** (themes, fon
 | --- | --- | --- |
 | `tsvg:report` | `title` `list` (change / check / open / step / no) `shot` `stat` `compare` `code` | [▶ report](https://panth977.github.io/tsvg/playground/?doc=../examples/libs/report.tsvg) |
 | `tsvg:explainer` | `title` `point` `chapter` `steps` `stat` `quote` `picture` `versus` `outro` | [▶ explainer](https://panth977.github.io/tsvg/playground/?doc=../examples/libs/explainer.tsvg) |
+| `tsvg:tech` | tech explainers in 16:9, 9:16 and 1:1 from one document: `beat` (scene + word-by-word caption; tall or wide stage) `follow` `tile` `label` `pill` `wire` `packet` `box` (isometric) `room` `window` `phone` `doc` `code` `tokens` `chip` `shot` (real UI + ring) `stat` `headline` `sum` `qs`; themes paper (green) · oizom · oizom-dark; skills `tech-explainer`, `codebase-explainer` | [▶ tech explainer](https://panth977.github.io/tsvg/playground/?doc=../examples/styles/tech-explainer.tsvg) · [▶ codebase](https://panth977.github.io/tsvg/playground/?doc=../examples/styles/codebase-explainer.tsvg) |
 | `tsvg:fx` | overlays `grain` `vignette` `scanlines` `leak` `flash`; wrappers `grade` (looks) `glow` `shake` `beat` | [▶ effects + beats](https://panth977.github.io/tsvg/playground/?doc=../examples/fx/fx.tsvg) |
 | `tsvg:charts` | `bars` `hbars` `line` `pie` (donut) `ring` `counter` `spark`: one tag with a list of numbers | [▶ charts + icons](https://panth977.github.io/tsvg/playground/?doc=../examples/charts/charts.tsvg) |
 | `tsvg:icons` | `icon`: 2,104 [Lucide](https://lucide.dev/icons) line icons (ISC), `<i:icon name="rocket" size="64" color="$accent" drawin="0.8"/>`; `tsvg icons rock` finds names | same |
@@ -163,6 +174,10 @@ import { TSVGPlayer } from "https://esm.sh/jsr/@panth977/tsvg@0.10.0";     // an
 ```
 ```html
 <script src="https://esm.sh/jsr/@panth977/tsvg@0.10.0/dist/tsvg.js?raw"></script>  <!-- classic script: window.TSVG, TSVGZip, TSVGPlayer -->
+<!-- or from npm (jsdelivr; works inside claude.ai artifacts, + tsvg-libs.js bundles the built-in libraries):
+     <script src="https://cdn.jsdelivr.net/npm/@dixitram/tsvg@0.10.1/tsvg.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/@dixitram/tsvg@0.10.1/tsvg-libs.js"></script>
+     <script type="text/tsvg" data-play><tsvg …>…</tsvg></script>   (plays in place) -->
 ```
 
 Embed the player:
@@ -176,7 +191,7 @@ Embed the player:
 ## Style gallery
 
 <!-- styles:start -->
-**60 styles**, each a ~1-minute TSVG video with narration. ▶ [Open the gallery](https://panth977.github.io/tsvg/gallery/) to play any of them in the browser (click a thumbnail).
+**62 styles**, each a ~1-minute TSVG video with narration. ▶ [Open the gallery](https://panth977.github.io/tsvg/gallery/) to play any of them in the browser (click a thumbnail).
 
 #### Product & software
 
@@ -191,6 +206,7 @@ Embed the player:
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#dashboard-kpi-tour"><img src="examples/styles/thumbs/dashboard-kpi-tour.jpg" alt="Dashboard KPI tour"></a><br><b>Dashboard KPI tour</b><br><sub>Analytics dashboard: KPI cards count up, sparklines and a 30-day line draw, bars grow, and a spotlight focuses one panel at a time. · 58 s · <a href="examples/styles/dashboard-kpi-tour.tsvg">source</a></sub></td>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#code-walkthrough"><img src="examples/styles/thumbs/code-walkthrough.jpg" alt="Code walkthrough"></a><br><b>Code walkthrough</b><br><sub>An editor in JetBrains Mono with token colours, a moving line highlight, annotations beside lines and a unified diff that pushes lines down. · 62 s · <a href="examples/styles/code-walkthrough.tsvg">source</a></sub></td>
 </tr><tr>
+<td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#codebase-explainer"><img src="examples/styles/thumbs/codebase-explainer.jpg" alt="Codebase explainer"></a><br><b>Codebase explainer</b><br><sub>How a feature really works, for the dev team: real logos, one blue focus at a time, a packet riding the flow, the code that proves it, the rows it writes, and an honest In short + checked / open ending. Oizom paper or editor-dark; tsvg:tech. · 37 s · <a href="examples/styles/codebase-explainer.tsvg">source</a></sub></td>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#terminal-cli-demo"><img src="examples/styles/thumbs/terminal-cli-demo.jpg" alt="Terminal CLI demo"></a><br><b>Terminal CLI demo</b><br><sub>Terminal recording: typed commands with a block cursor, output lines, progress bars and a success tick; modern or retro green CRT theme. · 63 s · <a href="examples/styles/terminal-cli-demo.tsvg">source</a></sub></td>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#architecture-diagram"><img src="examples/styles/thumbs/architecture-diagram.jpg" alt="Architecture diagram"></a><br><b>Architecture diagram</b><br><sub>Blueprint system diagram: services pop in, arrows draw on, packets flow along curves, and the camera zooms into one service to open it up. · 62 s · <a href="examples/styles/architecture-diagram.tsvg">source</a></sub></td>
 </tr></table>
@@ -250,15 +266,16 @@ Embed the player:
 
 <table><tr>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#social-short-vertical"><img src="examples/styles/thumbs/social-short-vertical.jpg" alt="Vertical social short"></a><br><b>Vertical social short</b><br><sub>Portrait-first reel: a one-second hook, word-by-word highlighted captions, quick colour cuts, vector stickers and a top progress bar. · 52 s · <a href="examples/styles/social-short-vertical.tsvg">source</a></sub></td>
+<td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#tech-explainer"><img src="examples/styles/thumbs/tech-explainer.jpg" alt="Tech explainer"></a><br><b>Tech explainer</b><br><sub>Cream paper, outlined logo tiles, boxed labels, pale-green isometric props and a caption that turns green word by word; one document plays in 16:9, 9:16 and 1:1. Built on tsvg:tech. · 52 s · <a href="examples/styles/tech-explainer.tsvg">source</a></sub></td>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#podcast-audiogram"><img src="examples/styles/thumbs/podcast-audiogram.jpg" alt="Podcast audiogram"></a><br><b>Podcast audiogram</b><br><sub>Square cover art, a live waveform driven by noise, two speakers and a pull quote that lights up word by word. · 55 s · <a href="examples/styles/podcast-audiogram.tsvg">source</a></sub></td>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#lyric-karaoke"><img src="examples/styles/thumbs/lyric-karaoke.jpg" alt="Lyric / karaoke video"></a><br><b>Lyric / karaoke video</b><br><sub>A spoken poem with a gold sweep across the current line, the next line previewed, over a night sea with a sweeping lighthouse beam. · 53 s · <a href="examples/styles/lyric-karaoke.tsvg">source</a></sub></td>
-<td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#quote-cards"><img src="examples/styles/thumbs/quote-cards.jpg" alt="Quote cards"></a><br><b>Quote cards</b><br><sub>Elegant serif quotes on slowly zooming photos with a frosted-glass card, author line and fade-through-black card transitions. · 56 s · <a href="examples/styles/quote-cards.tsvg">source</a></sub></td>
 </tr><tr>
+<td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#quote-cards"><img src="examples/styles/thumbs/quote-cards.jpg" alt="Quote cards"></a><br><b>Quote cards</b><br><sub>Elegant serif quotes on slowly zooming photos with a frosted-glass card, author line and fade-through-black card transitions. · 56 s · <a href="examples/styles/quote-cards.tsvg">source</a></sub></td>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#listicle-countdown"><img src="examples/styles/thumbs/listicle-countdown.jpg" alt="Top-5 countdown listicle"></a><br><b>Top-5 countdown listicle</b><br><sub>Big numbers counting 5 to 1, an illustrated item per entry with a stat bar, and a #1 reveal with rays and confetti. · 68 s · <a href="examples/styles/listicle-countdown.tsvg">source</a></sub></td>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#promo-ad-spot"><img src="examples/styles/thumbs/promo-ad-spot.jpg" alt="Product promo ad"></a><br><b>Product promo ad</b><br><sub>Punchy product spot: vector logo burst, feature punches cut on a 120 BPM beat, animated gauges and a pulsing price/CTA end card. · 54 s · <a href="examples/styles/promo-ad-spot.tsvg">source</a></sub></td>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#event-countdown"><img src="examples/styles/thumbs/event-countdown.jpg" alt="Event announcement countdown"></a><br><b>Event announcement countdown</b><br><sub>Save-the-date event promo: gradient title, calendar and venue cards, a live flip-clock countdown, speaker avatars, agenda and register CTA. · 55 s · <a href="examples/styles/event-countdown.tsvg">source</a></sub></td>
-<td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#testimonial-cards"><img src="examples/styles/thumbs/testimonial-cards.jpg" alt="Customer testimonials"></a><br><b>Customer testimonials</b><br><sub>Review cards slide in with initials avatars, star ratings that fill, typed quotes, then a rating summary bar chart and CTA. · 60 s · <a href="examples/styles/testimonial-cards.tsvg">source</a></sub></td>
 </tr><tr>
+<td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#testimonial-cards"><img src="examples/styles/thumbs/testimonial-cards.jpg" alt="Customer testimonials"></a><br><b>Customer testimonials</b><br><sub>Review cards slide in with initials avatars, star ratings that fill, typed quotes, then a rating summary bar chart and CTA. · 60 s · <a href="examples/styles/testimonial-cards.tsvg">source</a></sub></td>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#pitch-deck-metrics"><img src="examples/styles/thumbs/pitch-deck-metrics.jpg" alt="Pitch deck video"></a><br><b>Pitch deck video</b><br><sub>Slide-style startup pitch: problem, solution, TAM/SAM/SOM, a traction chart that draws itself, team, and a use-of-funds donut. · 70 s · <a href="examples/styles/pitch-deck-metrics.tsvg">source</a></sub></td>
 <td width="25%" valign="top"><a href="https://panth977.github.io/tsvg/gallery/#keynote-slideshow"><img src="examples/styles/thumbs/keynote-slideshow.jpg" alt="Keynote slideshow"></a><br><b>Keynote slideshow</b><br><sub>Conference-talk slides: big gradient titles, numbered bullet build-ins, Ken Burns photo slides, a bar chart and push/fade transitions. · 59 s · <a href="examples/styles/keynote-slideshow.tsvg">source</a></sub></td>
 </tr></table>

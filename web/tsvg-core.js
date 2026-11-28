@@ -204,7 +204,7 @@
       if (!c) { errors.push('unknown component <' + name + '>: ' + k.lib.name + ' has ' + (Object.keys(k.lib.comps).join(', ') || 'none') + hint(id, Object.keys(k.lib.comps))); return { missing: true }; }
       const s = libScope(k.lib, k.params); return { comp: c, scope: s, params: k.params, label: name };
     };
-    // alias:id points into an imported library: ref="b:tick", url(#b:ink), @b:hello, src="b:pad", s('b:x'), data('b:x')
+    // alias:id points into an imported library: ref="b:tick", url(#b:ink), @b:hello, src="b:pad", s('b:x'), data('b:x'), =b:fn(x)
     function nsRefs(el, scope) {
       const P = (a, id) => { const k = scope.ns[a]; return k ? k.lib.name + '__' + id : null; };
       for (const [k, v] of Object.entries(el.attrs)) {
@@ -213,6 +213,7 @@
         if (v.indexOf(':') < 0) continue;
         let w = v.replace(/url\(#([A-Za-z_][\w-]*):([\w-]+)\)/g, (m, a, id) => { const p = P(a, id); return p ? 'url(#' + p + ')' : m; });
         w = w.replace(/\b(s|data|count)\(\s*(['"])([A-Za-z_][\w-]*):([^'"]+)\2/g, (m, f, q, a, id) => { const p = P(a, id); return p ? f + '(' + q + p + q : m; });
+        if (w[0] === '=' || w.indexOf('{') >= 0) w = w.replace(/\b([A-Za-z_][\w-]*):([A-Za-z_]\w*)\s*\(/g, (m, a, id) => { const p = P(a, id); return p ? p + '(' : m; }); // a library's <fn>: rl:on(a, b)
         const base = k.split('.')[0]; const m = /^(@?)([A-Za-z_][\w-]*):([\w-]+)$/.exec(w);
         if (m && (m[1] || base === 'ref' || base === 'src')) { const p = P(m[2], m[3]); if (p) w = m[1] + p; }
         el.attrs[k] = w;
@@ -228,6 +229,7 @@
         if (!hit) { nsRefs(c, scope); if (c.name.includes(':')) errors.push('line ' + c.line + ' <' + c.name + '>: no import with as="' + c.name.split(':')[0] + '"' + hint(c.name.split(':')[0], Object.keys(scope.ns))); c.children = expand(c, scope, depth); out.push(c); continue; }
         if (depth > 40) { errors.push('line ' + c.line + ' <' + c.name + '>: components nest too deep (a component that uses itself?)'); continue; }
         if (++count > 20000) { errors.push('too many component expansions'); return out; }
+        for (const k of Object.keys(c.attrs)) { const v = c.attrs[k]; if (v.indexOf(':') >= 0 && (v[0] === '=' || v.indexOf('{') >= 0)) c.attrs[k] = v.replace(/\b([A-Za-z_][\w-]*):([A-Za-z_]\w*)\s*\(/g, (m, a, id) => { const k2 = scope.ns[a]; return k2 ? k2.lib.name + '__' + id + '(' : m; }); } // prop="=rl:on(a, b)" resolves in the caller's scope
         const props = propsOf(hit.comp); const vals = Object.assign({}, hit.params); const variants = {};
         for (const k of Object.keys(c.attrs)) {
           const dot = k.indexOf('.'); const base = dot < 0 ? k : k.slice(0, dot);
@@ -985,6 +987,7 @@
     if (!visible(n, parentEnv)) return;
     const doc = parentEnv.doc;
     const env = Object.assign({}, parentEnv, { clipped: !!(parentEnv.clipped || n.a.clip || n.a.mask), vars: Object.assign({}, parentEnv.vars, { T0: n.a.at != null ? +value(pick(n.a, 'at', parentEnv), parentEnv, doc) : parentEnv.vars.T0 }) });
+    if (n.type === 'text' && n.a.split) { env.vars.u = 0; env.vars.u_n = 1; } // whole-node reads of per-word attributes (fill="=… u …")
     const mask = pick(n.a, 'mask', env);
     if (mask && ctx.canvas && typeof ctx.canvas.getContext === 'function') return drawMasked(ctx, n, env, mask);
     const P = (name, d) => prop(n, name, env, doc, d);
@@ -1240,7 +1243,7 @@
   // asset id or path → path inside the package
   function assetPath(doc, ref) { return ref && doc.assets[ref] ? doc.assets[ref].src : ref; }
 
-  function defaults(doc) { const o = {}; for (const op of doc.options) o[op.id] = op.default || (op.choices[0] && op.choices[0].id); return o; }
+  function defaults(doc) { const o = { lang: 'en' }; for (const op of doc.options) o[op.id] = op.default || (op.choices[0] && op.choices[0].id); return o; } // no lang option = English, as tsvg bake assumes
   function combos(doc) {
     let out = [{}];
     for (const o of doc.options) { const next = []; for (const c of out) for (const ch of o.choices) next.push(Object.assign({}, c, { [o.id]: ch.id })); out = next; }
@@ -1274,7 +1277,7 @@
     const themes = Object.entries(doc.themes);
     // names an expression may use: built-in variables, option ids, repeat variables, <fn> arguments
     const vars = new Set(['t', 'T', 'T0', 'p', 'W', 'H', 'dur', 'sdur', 'portrait', 'layout', 'PI', 'true', 'false'].concat(doc.options.map((o) => o.id)));
-    (function scan(el) { for (const c of el.children) { if (c.attrs.repeat != null) { const a = c.attrs.as || 'i'; vars.add(a); vars.add(a + '_n'); } scan(c); } })(r);
+    (function scan(el) { for (const c of el.children) { if (c.attrs.repeat != null) { const a = c.attrs.as || 'i'; vars.add(a); vars.add(a + '_n'); } if (c.attrs.split) { vars.add('u'); vars.add('u_n'); } scan(c); } })(r);
     for (const f of Object.values(doc.fnSrc)) for (const a of f.args) vars.add(a);
     const fnNames = Object.keys(FNS).concat(Object.keys(doc.fns), ['data', 'count', 's', 'aspect', 'cue', 'cueEnd', 'nth', 'since', 'idx', 'pulse']);
     const exprIssues = (src) => {

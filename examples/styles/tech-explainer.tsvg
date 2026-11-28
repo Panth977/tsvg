@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Style: tech explainer, any format (tsvg:tech). Cream paper, outlined icon tiles, boxed labels, pale-green
+     isometric props and a word-by-word green caption. Each <tx:beat> is a scene; its say is cut on "/" into
+     caption chunks, and chunk n is the voice line "<beat id>.<n>", so every visual cues on the word it explains. -->
+<tsvg version="0.10" title="What happens when you type a URL?">
+  <import src="tsvg:tech" as="tx"/>
+  <import src="tsvg:icons" as="i"/>
+
+  <timeline>
+    <!-- 1 · hook: the thing everyone does, a question they never asked -->
+    <tx:beat id="b1" chapter="Hook" say="You type a website name, / and a page appears / in under a second. / So what just happened?">
+      <tx:window x="180" y="520" w="720" h="560" title="New tab" url="example.com" at="0.1">
+        <rect x="0" y="20" w="680" h="200" r="14" fill="$pale" at="=cue('b1.1')"><anim prop="opacity" from="0" to="1" dur="0.3"/></rect>
+        <path d="M0 220 L180 120 L300 190 L440 90 L680 220 Z" fill="$deep" at="=cue('b1.1') + 0.1"><anim prop="opacity" from="0" to="1" dur="0.3"/></path>
+        <circle x="560" y="70" r="26" fill="$lime" at="=cue('b1.1') + 0.2"><anim prop="scale" from="0" to="1" dur="0.35" ease="back"/></circle>
+        <rect x="0" y="250" w="420" h="22" r="11" fill="$shade" at="=cue('b1.1') + 0.25"><anim prop="w" from="0" to="420" dur="0.4" ease="out"/></rect>
+        <rect x="0" y="290" w="300" h="22" r="11" fill="$shade" at="=cue('b1.1') + 0.35"><anim prop="w" from="0" to="300" dur="0.4" ease="out"/></rect>
+        <rect x="0" y="340" w="200" h="56" r="12" fill="$green" at="=cue('b1.1') + 0.45"><anim prop="opacity" from="0" to="1" dur="0.3"/></rect>
+      </tx:window>
+      <tx:stat x="540" y="330" value="&lt; 1 s" at="=cue('b1.2')"/>
+    </tx:beat>
+
+    <!-- 2 · names vs numbers -->
+    <tx:beat id="b2" chapter="Names and numbers" say="But computers don't know names. / They only know numbers, / called IP addresses.">
+      <tx:label x="540" y="520" text="example.com" size="44" at="0.1" hl="=tx:on(cue('b2.0'), cue('b2.1'))"/>
+      <tx:wire d="M540 570 L540 790" at="=cue('b2.1')"/>
+      <tx:label x="540" y="850" text="93.184.215.14" mono="1" size="48" sub="IP address" at="=cue('b2.1') + 0.3" hl="=tx:on(cue('b2.2'), sdur)"/>
+    </tx:beat>
+
+    <!-- 3 · ask the phone book -->
+    <tx:beat id="b3" chapter="DNS" zoom="1.12" zx="700" zy="760" say="So first, your laptop asks / a DNS server, / the internet's phone book.">
+      <tx:tile x="260" y="780" icon="laptop" label="Your laptop" at="0.1" hl="=tx:on(cue('b3.0'), cue('b3.1'))"/>
+      <tx:wire d="M345 780 C520 780 560 700 690 700" at="=cue('b3.0') + 0.5" hl="=tx:on(cue('b3.0') + 0.5, cue('b3.1'))"/>
+      <tx:box x="820" y="560" w="150" d="150" h="190" at="=cue('b3.1')">
+        <rect x="20" y="20" w="110" h="18" r="4" fill="$mid"/><rect x="20" y="52" w="110" h="18" r="4" fill="$mid"/><rect x="20" y="84" w="110" h="18" r="4" fill="$deep"/>
+      </tx:box>
+      <tx:label x="820" y="440" text="DNS server" sub="names → numbers" tx="820" ty="545" at="=cue('b3.1') + 0.2" hl="=tx:on(cue('b3.1'), cue('b3.2'))"/>
+      <tx:tile x="820" y="1090" icon="book-open" size="140" at="=cue('b3.2')" hl="=tx:on(cue('b3.2'), sdur)"/>
+    </tx:beat>
+
+    <!-- 4 · the answer, then connect -->
+    <tx:beat id="b4" chapter="Connect" say="It answers with the number, / and your browser connects / to that address.">
+      <tx:tile x="260" y="780" icon="laptop" label="Your laptop" op="=tx:fade(cue('b4.1'), sdur, 1)"/>
+      <tx:box x="820" y="560" w="150" d="150" h="190" op="=1 - 0.7*tx:grow(cue('b4.1'), 0.3)"/>
+      <tx:pill x="560" y="660" text="93.184.215.14" kind="dark" at="=cue('b4.0') + 0.2" op="=1 - tx:grow(cue('b4.1'), 0.3)"/>
+      <tx:wire d="M345 860 L700 1060" at="=cue('b4.1')" hl="=tx:on(cue('b4.1'), sdur)"/>
+      <tx:tile x="790" y="1110" icon="server" label="example.com" sub="93.184.215.14" at="=cue('b4.1') + 0.3" hl="=tx:on(cue('b4.2'), sdur)"/>
+    </tx:beat>
+
+    <!-- 5 · agree on a key -->
+    <tx:beat id="b5" chapter="Encryption" say="Then the two sides agree / on a secret key, / so nobody in between / can read the page.">
+      <tx:tile x="250" y="760" icon="laptop" at="0.05"/>
+      <tx:tile x="830" y="760" icon="server" at="0.05"/>
+      <tx:wire d="M335 730 L745 730" at="=cue('b5.0') + 0.2"/>
+      <tx:wire d="M745 790 L335 790" at="=cue('b5.0') + 0.5"/>
+      <tx:tile x="540" y="560" icon="key-round" size="150" color="$green" at="=cue('b5.1')" hl="=tx:on(cue('b5.1'), cue('b5.2'))"/>
+      <tx:pill x="540" y="890" text="TLS" kind="gear" at="=cue('b5.1') + 0.3"/>
+      <tx:tile x="540" y="1110" icon="eye-off" size="140" at="=cue('b5.2')" hl="=tx:on(cue('b5.2'), sdur)"/>
+    </tx:beat>
+
+    <!-- 6 · packets, reassembled -->
+    <tx:beat id="b6" chapter="Packets" say="Now the server sends the page / in tiny packets, / and your browser / puts them back together.">
+      <tx:headline text="Many small pieces," text2="one page." y="330" at="0.1"/>
+      <tx:box x="300" y="620" w="120" d="120" h="40" at="=cue('b6.1')"/>
+      <tx:box x="540" y="560" w="120" d="120" h="40" at="=cue('b6.1') + 0.15" top="$pale"/>
+      <tx:box x="780" y="620" w="120" d="120" h="40" at="=cue('b6.1') + 0.3"/>
+      <tx:box x="420" y="800" w="120" d="120" h="40" at="=cue('b6.1') + 0.45" top="$pale"/>
+      <tx:box x="660" y="800" w="120" d="120" h="40" at="=cue('b6.1') + 0.6"/>
+      <tx:window x="240" y="960" w="600" h="320" title="example.com" at="=cue('b6.3')" hl="=tx:on(cue('b6.3'), sdur)">
+        <rect w="560" h="110" r="12" fill="$pale"/><rect y="130" w="360" h="20" r="10" fill="$shade"/><rect y="166" w="260" h="20" r="10" fill="$shade"/>
+      </tx:window>
+    </tx:beat>
+
+    <!-- 7 · recap -->
+    <tx:beat id="b7" chapter="Recap" say="Name, number, / handshake, packets. / All in a fraction of a second.">
+      <tx:pill x="540" y="520" text="1 · DNS lookup" kind="green" at="=cue('b7.0')"/>
+      <tx:pill x="540" y="640" text="2 · Connect" kind="green" at="=cue('b7.0') + 0.4"/>
+      <tx:pill x="540" y="760" text="3 · TLS handshake" kind="green" at="=cue('b7.1')"/>
+      <tx:pill x="540" y="880" text="4 · Packets → page" kind="green" at="=cue('b7.1') + 0.4"/>
+      <tx:stat x="540" y="1130" value="&lt; 1 s" size="110" at="=cue('b7.2')"/>
+    </tx:beat>
+
+    <tx:follow id="end" channel="Your Channel" say="Follow Your Channel, / and next time, / I'll show you what a cookie / really remembers."/>
+  </timeline>
+
+  <!-- written by `tsvg bake`: one recorded clip per <say> line and language -->
+  <voices>
+    <voice say="b1.0" lang="en" src="voice/tech-explainer/en/b1.0.a8353b738e.m4a" dur="1.71" hash="a8353b738e" engine="kokoro:am_michael"/>
+    <voice say="b1.1" lang="en" src="voice/tech-explainer/en/b1.1.1997982992.m4a" dur="1.41" hash="1997982992" engine="kokoro:am_michael"/>
+    <voice say="b1.2" lang="en" src="voice/tech-explainer/en/b1.2.6a01f8b2b7.m4a" dur="1.45" hash="6a01f8b2b7" engine="kokoro:am_michael"/>
+    <voice say="b1.3" lang="en" src="voice/tech-explainer/en/b1.3.a99a7f21ab.m4a" dur="1.58" hash="a99a7f21ab" engine="kokoro:am_michael"/>
+    <voice say="b2.0" lang="en" src="voice/tech-explainer/en/b2.0.4ce71213d7.m4a" dur="2.00" hash="4ce71213d7" engine="kokoro:am_michael"/>
+    <voice say="b2.1" lang="en" src="voice/tech-explainer/en/b2.1.2e753dbc8f.m4a" dur="1.47" hash="2e753dbc8f" engine="kokoro:am_michael"/>
+    <voice say="b2.2" lang="en" src="voice/tech-explainer/en/b2.2.8c241f15bc.m4a" dur="1.58" hash="8c241f15bc" engine="kokoro:am_michael"/>
+    <voice say="b3.0" lang="en" src="voice/tech-explainer/en/b3.0.9c5ee4166e.m4a" dur="1.94" hash="9c5ee4166e" engine="kokoro:am_michael"/>
+    <voice say="b3.1" lang="en" src="voice/tech-explainer/en/b3.1.d3a2d8c0f9.m4a" dur="1.47" hash="d3a2d8c0f9" engine="kokoro:am_michael"/>
+    <voice say="b3.2" lang="en" src="voice/tech-explainer/en/b3.2.75a65435f4.m4a" dur="1.64" hash="75a65435f4" engine="kokoro:am_michael"/>
+    <voice say="b4.0" lang="en" src="voice/tech-explainer/en/b4.0.ebd02aca4a.m4a" dur="1.73" hash="ebd02aca4a" engine="kokoro:am_michael"/>
+    <voice say="b4.1" lang="en" src="voice/tech-explainer/en/b4.1.516a9d23e5.m4a" dur="1.49" hash="516a9d23e5" engine="kokoro:am_michael"/>
+    <voice say="b4.2" lang="en" src="voice/tech-explainer/en/b4.2.401de83f67.m4a" dur="1.17" hash="401de83f67" engine="kokoro:am_michael"/>
+    <voice say="b5.0" lang="en" src="voice/tech-explainer/en/b5.0.80430a5ffd.m4a" dur="1.62" hash="80430a5ffd" engine="kokoro:am_michael"/>
+    <voice say="b5.1" lang="en" src="voice/tech-explainer/en/b5.1.ad792c6f3d.m4a" dur="1.43" hash="ad792c6f3d" engine="kokoro:am_michael"/>
+    <voice say="b5.2" lang="en" src="voice/tech-explainer/en/b5.2.9ffa6b054c.m4a" dur="1.64" hash="9ffa6b054c" engine="kokoro:am_michael"/>
+    <voice say="b5.3" lang="en" src="voice/tech-explainer/en/b5.3.776186c452.m4a" dur="1.36" hash="776186c452" engine="kokoro:am_michael"/>
+    <voice say="b6.0" lang="en" src="voice/tech-explainer/en/b6.0.8aae925c76.m4a" dur="1.64" hash="8aae925c76" engine="kokoro:am_michael"/>
+    <voice say="b6.1" lang="en" src="voice/tech-explainer/en/b6.1.42495dfade.m4a" dur="1.47" hash="42495dfade" engine="kokoro:am_michael"/>
+    <voice say="b6.2" lang="en" src="voice/tech-explainer/en/b6.2.a4ff19e2df.m4a" dur="1.28" hash="a4ff19e2df" engine="kokoro:am_michael"/>
+    <voice say="b6.3" lang="en" src="voice/tech-explainer/en/b6.3.349c0f6382.m4a" dur="1.47" hash="349c0f6382" engine="kokoro:am_michael"/>
+    <voice say="b7.0" lang="en" src="voice/tech-explainer/en/b7.0.6ec2e6f3a1.m4a" dur="1.17" hash="6ec2e6f3a1" engine="kokoro:am_michael"/>
+    <voice say="b7.1" lang="en" src="voice/tech-explainer/en/b7.1.bff3abfe89.m4a" dur="1.51" hash="bff3abfe89" engine="kokoro:am_michael"/>
+    <voice say="b7.2" lang="en" src="voice/tech-explainer/en/b7.2.1cb4b3c9dc.m4a" dur="2.03" hash="1cb4b3c9dc" engine="kokoro:am_michael"/>
+    <voice say="end.0" lang="en" src="voice/tech-explainer/en/end.0.096cd58d51.m4a" dur="1.39" hash="096cd58d51" engine="kokoro:am_michael"/>
+    <voice say="end.1" lang="en" src="voice/tech-explainer/en/end.1.193f6d773a.m4a" dur="1.32" hash="193f6d773a" engine="kokoro:am_michael"/>
+    <voice say="end.2" lang="en" src="voice/tech-explainer/en/end.2.412f2194a2.m4a" dur="1.69" hash="412f2194a2" engine="kokoro:am_michael"/>
+    <voice say="end.3" lang="en" src="voice/tech-explainer/en/end.3.38de8e4eda.m4a" dur="1.22" hash="38de8e4eda" engine="kokoro:am_michael"/>
+  </voices>
+</tsvg>

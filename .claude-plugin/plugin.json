@@ -1,0 +1,24 @@
+{
+  "name": "tsvg",
+  "version": "0.10.1",
+  "description": "Make videos as TSVG documents (XML that plays live, no rendering or encoding): write, check, preview and pack .tsvgz videos with the tsvg CLI; tech-explainer and codebase-explainer styles; the player can voice every line in the browser (Kokoro / sanoTTS). For claude.ai, upload the tsvg-video skill (dist/tsvg-video.zip) and videos play inside artifacts.",
+  "author": {
+    "name": "Panth977",
+    "url": "https://github.com/Panth977"
+  },
+  "homepage": "https://panth977.github.io/tsvg/",
+  "repository": "https://github.com/Panth977/tsvg",
+  "license": "MIT",
+  "keywords": [
+    "animation",
+    "artifact",
+    "claude-ai",
+    "explainer",
+    "kokoro",
+    "narration",
+    "svg",
+    "tsvg",
+    "tts",
+    "video"
+  ]
+}

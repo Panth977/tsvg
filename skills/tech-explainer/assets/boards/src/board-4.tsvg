@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- UI, code and documents — a reference board for the tech-explainer skill: six original scenes in the tsvg:tech paper look.
+     Isometric props are plain paths (X → down-right, Y → down-left, up = −y); flat content sits on a plane with
+     rot="30" skx="-30" sy="0.866" (floor), sky="30" sx="0.866" (wall facing down-left) or sky="-30" sx="0.866" (facing down-right). -->
+<tsvg version="0.10" title="UI, code and documents">
+  <import src="tsvg:tech" as="tx"/>
+  <import src="tsvg:icons" as="i"/>
+  <layouts><layout id="portrait" w="1080" h="1920"/></layouts>
+  <timeline>
+    <tx:beat id="b1" chapter="Bytes" say="Open any photo / in a hex viewer, / and it starts with FF D8.">
+      <tx:code x="90" y="420" w="900" size="30" title="Hex view · beach.jpg" at="=cue('b1.1')" mark="=cue('b1.2')" lines="FF D8 FF E0 00 10 4A 46 49 46 00 01 :: hl | 01 01 00 48 00 48 00 00 FF DB 00 43 | 00 08 06 06 07 06 05 08 07 07 07 09 | 09 08 0A 0C 14 0D 0C 0B 0B 0C 19 12 | 13 0F 14 1D 1A 1F 1E 1D 1A 1C 1C 20 | 24 2E 27 20 22 2C 23 1C 1C 28 37 29 | 2C 30 31 34 34 34 1F 27 39 3D 38 32 | 3C 2E 33 34 32 FF DB 00 43 01 09 09 | 09 0C 0B 0C 18 0D 0D 18 32 21 1C 21 | 32 32 32 32 32 32 32 32 32 32 32 32 | 32 32 32 32 32 32 32 32 32 32 32 32"/>
+      <tx:label x="780" y="330" text="JPEG signature" sub="every .jpg starts this way" tx="500" ty="520" at="=cue('b1.2') + 0.3" hl="=tx:on(cue('b1.2') + 0.3, sdur)"/>
+    </tx:beat>
+
+    <tx:beat id="b2" chapter="The bug" say="The bug was one line. / It retried instantly, / five times in a row.">
+      <tx:code x="90" y="560" w="900" size="30" title="upload.py" at="=cue('b2.0')" mark="=cue('b2.1')" lines="def upload(file): | ⠀⠀⠀⠀for attempt in range(5): | ⠀⠀⠀⠀⠀⠀⠀⠀ok = send(file) :: ok | ⠀⠀⠀⠀⠀⠀⠀⠀if ok: :: ok | ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀return True :: ok | ⠀⠀⠀⠀⠀⠀⠀⠀wait(0)   # retry now :: bad | ⠀⠀⠀⠀return False |  | def send(file): | ⠀⠀⠀⠀return http.post(URL, file)"/>
+      <tx:label x="830" y="420" text="The bug" tx="830" ty="878" at="=cue('b2.1')" hl="=tx:on(cue('b2.1'), sdur)"/>
+    </tx:beat>
+
+    <tx:beat id="b3" chapter="Terms" say="And here's what / the doorbell's own terms / say it records.">
+      <tx:doc x="70" y="470" w="520" title="Smart Doorbell · Terms" lines="2" quotes="Sound near your door | Faces of visitors | Times you come and go" from="Section 4 · what we collect" at="=cue('b3.1')" step="0.6"/>
+      <tx:phone x="680" y="430" w="300" h="610" tilt="-16" at="=cue('b3.0')">
+        <rect w="272" h="582" r="36" fill="$pale"/>
+        <rect x="0" y="80" w="272" h="300" fill="$mid"/>
+        <rect x="90" y="140" w="100" h="240" r="6" fill="$tile" stroke="$line" sw="2"/><circle x="176" y="270" r="6" fill="$line"/>
+        <circle x="60" y="250" r="26" fill="$tile" stroke="$ink" sw="2"/><rect x="30" y="280" w="60" h="100" r="20" fill="$deep" stroke="$ink" sw="2"/>
+        <circle x="30" y="110" r="9" fill="$bad"/><text x="48" y="110" size="20" weight="700" font="Outfit" fill="$ink" text="LIVE"/>
+        <text x="24" y="430" size="26" weight="700" font="Outfit" fill="$ink" text="Front door"/>
+        <rect x="24" y="500" w="224" h="50" r="25" fill="$ink"/><text x="136" y="525" size="22" weight="700" font="Outfit" align="center" fill="#ffffff" text="Talk"/>
+      </tx:phone>
+    </tx:beat>
+
+    <tx:beat id="b4" chapter="Transcript" say="The speaker doesn't keep / everything it hears, / just what follows its name.">
+      <tx:window x="110" y="560" w="860" h="460" title="Voice history" at="=cue('b4.0')">
+        <text x="30" y="50" size="34" font="Outfit" fill="$muted" maxw="760" lh="1.35" text="(music, two people talking)"/>
+        <rect x="18" y="114" w="=700*tx:grow(cue('b4.2'), 0.5)" h="104" r="6" fill="$lime"/>
+        <text x="30" y="140" size="36" weight="600" font="Outfit" fill="$ink" maxw="760" lh="1.35" text="“Hey Speaker, turn off the hallway light at eleven.”" at="=cue('b4.1')"/>
+        <text x="30" y="290" size="24" font="Outfit" fill="$muted" text="Today · 22:41 · kept 30 days" at="=cue('b4.2') + 0.4"/>
+      </tx:window>
+    </tx:beat>
+
+    <tx:beat id="b5" chapter="Readings" say="Plus a table of readings, / fifty of them / every second.">
+      <tx:tile x="540" y="330" icon="file-spreadsheet" size="110" at="=cue('b5.0')"/>
+      <group x="90" y="440" at="=cue('b5.0') + 0.2"><anim prop="opacity" from="0" to="1" dur="0.3"/><rect w="200" h="120" r="10" fill="$tile" stroke="$ink" sw="2.5"/><text x="12" y="26" size="22" weight="700" font="JetBrains Mono" fill="$ink" text="ax"/><path y="10" d="M10 60 L14 54.2 L18 49.9 L22 48.0 L26 49.1 L30 52.8 L34 58.3 L38 64.2 L42 69.1 L46 71.7 L50 71.5 L54 68.5 L58 63.4 L62 57.4 L66 52.1 L70 48.7 L74 48.1 L78 50.4 L82 55.1 L86 60.9 L90 66.5 L94 70.6 L98 72.0 L102 70.5 L106 66.4 L110 60.8 L114 55.0 L118 50.4 L122 48.1 L126 48.8 L130 52.2 L134 57.5 L138 63.5 L142 68.5 L146 71.5 L150 71.7 L154 69.0 L158 64.1 L162 58.2 L166 52.7 L170 49.0" fill="none" stroke="$green" sw="3"/></group><group x="322" y="440" at="=cue('b5.0') + 0.3"><anim prop="opacity" from="0" to="1" dur="0.3"/><rect w="200" h="120" r="10" fill="$tile" stroke="$ink" sw="2.5"/><text x="12" y="26" size="22" weight="700" font="JetBrains Mono" fill="$ink" text="ay"/><path y="10" d="M10 60 L14 45.7 L18 40.0 L22 46.5 L26 61.2 L30 75.1 L34 79.9 L38 72.6 L42 57.7 L46 44.1 L50 40.2 L54 48.3 L58 63.5 L62 76.6 L66 79.6 L70 70.7 L74 55.4 L78 42.8 L82 40.7 L86 50.3 L90 65.8 L94 77.8 L98 79.0 L102 68.7 L106 53.1 L110 41.7 L114 41.4 L118 52.4 L122 68.0 L126 78.7 L130 78.1 L134 66.5 L138 51.0 L142 40.9 L146 42.4 L150 54.6 L154 70.0 L158 79.4 L162 77.0 L166 64.3 L170 49.0" fill="none" stroke="$green" sw="3"/></group><group x="554" y="440" at="=cue('b5.0') + 0.4"><anim prop="opacity" from="0" to="1" dur="0.3"/><rect w="200" h="120" r="10" fill="$tile" stroke="$ink" sw="2.5"/><text x="12" y="26" size="22" weight="700" font="JetBrains Mono" fill="$ink" text="az"/><path y="10" d="M10 60 L14 35.0 L18 37.4 L22 64.4 L26 86.6 L30 79.8 L34 51.3 L38 32.3 L42 43.6 L46 72.8 L50 88.0 L54 72.6 L58 43.4 L62 32.4 L66 51.5 L70 79.9 L74 86.6 L78 64.2 L82 37.2 L86 35.2 L90 60.2 L94 85.1 L98 82.5 L102 55.3 L106 33.3 L110 40.4 L114 69.0 L118 87.7 L122 76.2 L126 47.0 L130 32.0 L134 47.6 L138 76.8 L142 87.6 L146 68.3 L150 39.9 L154 33.5 L158 56.1 L162 82.9 L166 84.7 L170 59.5" fill="none" stroke="$green" sw="3"/></group><group x="786" y="440" at="=cue('b5.0') + 0.5"><anim prop="opacity" from="0" to="1" dur="0.3"/><rect w="200" h="120" r="10" fill="$tile" stroke="$ink" sw="2.5"/><text x="12" y="26" size="22" weight="700" font="JetBrains Mono" fill="$ink" text="gyro"/><path y="10" d="M10 60 L14 27.0 L18 49.5 L22 85.3 L26 77.1 L30 43.5 L34 40.0 L38 68.0 L42 79.9 L46 59.4 L50 42.5 L54 55.0 L58 73.6 L62 68.6 L66 51.0 L70 49.7 L74 64.6 L78 70.4 L82 59.3 L86 50.8 L90 57.7 L94 67.2 L98 64.3 L102 55.1 L106 54.7 L110 62.6 L114 65.4 L118 59.5 L122 55.1 L126 58.9 L130 63.9 L134 62.2 L138 57.3 L142 57.3 L146 61.5 L150 62.8 L154 59.6 L158 57.4 L162 59.5 L166 62.1 L170 61.1" fill="none" stroke="$green" sw="3"/></group>
+      <tx:window x="90" y="620" w="900" h="610" title="steps.csv" at="=cue('b5.0') + 0.3">
+        <text x="40" y="30" size="26" weight="700" font="JetBrains Mono" fill="$muted" text="time"/><text x="250" y="30" size="26" weight="700" font="JetBrains Mono" fill="$muted" text="x"/><text x="460" y="30" size="26" weight="700" font="JetBrains Mono" fill="$muted" text="y"/><text x="670" y="30" size="26" weight="700" font="JetBrains Mono" fill="$muted" text="z"/>
+        <line x1="10" y1="58" x2="850" y2="58" stroke="$line" sw="2"/>
+        <group y="80" at="=cue('b5.1') + 0.0"><text x="40" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.00"/><text x="250" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.02"/><text x="460" y="22" size="28" font="JetBrains Mono" fill="$ink" text="-0.11"/><text x="670" y="22" size="28" font="JetBrains Mono" fill="$ink" text="9.79"/></group><group y="146" at="=cue('b5.1') + 0.1"><text x="40" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.02"/><text x="250" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.05"/><text x="460" y="22" size="28" font="JetBrains Mono" fill="$ink" text="-0.09"/><text x="670" y="22" size="28" font="JetBrains Mono" fill="$ink" text="9.83"/></group><group y="212" at="=cue('b5.1') + 0.2"><text x="40" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.04"/><text x="250" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.31"/><text x="460" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.12"/><text x="670" y="22" size="28" font="JetBrains Mono" fill="$ink" text="10.6"/></group><group y="278" at="=cue('b5.1') + 0.3"><rect x="10" y="-6" w="840" h="56" r="6" fill="$soft" stroke="$focus" sw="3" at="=cue('b5.2')"/><text x="40" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.06"/><text x="250" y="22" size="28" font="JetBrains Mono" fill="$ink" text="1.84"/><text x="460" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.46"/><text x="670" y="22" size="28" font="JetBrains Mono" fill="$ink" text="12.9"/></group><group y="344" at="=cue('b5.1') + 0.4"><text x="40" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.08"/><text x="250" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.27"/><text x="460" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.08"/><text x="670" y="22" size="28" font="JetBrains Mono" fill="$ink" text="9.92"/></group><group y="410" at="=cue('b5.1') + 0.5"><text x="40" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.10"/><text x="250" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.03"/><text x="460" y="22" size="28" font="JetBrains Mono" fill="$ink" text="-0.10"/><text x="670" y="22" size="28" font="JetBrains Mono" fill="$ink" text="9.80"/></group><group y="476" at="=cue('b5.1') + 0.6"><text x="40" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.12"/><text x="250" y="22" size="28" font="JetBrains Mono" fill="$ink" text="0.01"/><text x="460" y="22" size="28" font="JetBrains Mono" fill="$ink" text="-0.12"/><text x="670" y="22" size="28" font="JetBrains Mono" fill="$ink" text="9.78"/></group>
+      </tx:window>
+    </tx:beat>
+
+    <tx:beat id="b6" chapter="Edit" say="The company has since / rewritten that sentence.">
+      <group at="0" opacity="0.45"><anim prop="opacity" from="0" to="1" dur="0.35"/><group x="560" y="760" scale="0.9"><path d="M-225.2 -50 L138.6 160 L138.6 340 L-225.2 130 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M363.7 30 L138.6 160 L138.6 340 L363.7 210 Z" fill="#ddd6c3" stroke="$line" sw="2"/><path d="M363.7 30 L138.6 160 L251.1 95 Z" fill="#ddd6c3" stroke="$line" sw="2"/><path d="M0 -180 L363.7 30 L251.1 95 L-112.6 -115 Z" fill="$tile" stroke="$line" sw="2"/><path d="M-112.6 -115 L251.1 95 L138.6 160 L-225.2 -50 Z" fill="$tile" stroke="$line" sw="2"/><path d="M-152.4 60.4 L-101.5 89.8 L-101.5 201.4 L-152.4 172 Z" fill="$line" stroke="$line" sw="1"/><path d="M-43.3 109 L65.8 172 L65.8 229.6 L-43.3 166.6 Z" fill="$pale" stroke="$line" sw="1"/><group x="-190.5" y="10"><group sky="30" sx="0.866"><rect repeat="5" as="k" x="=k*72" w="50" h="60" fill="$pale" stroke="$line" sw="1.5"/></group></group><path d="M26 -255 L77.9 -225 L26 -195 L-26 -225 Z" fill="$tile" stroke="$line" sw="2"/><path d="M-26 -225 L26 -195 L26 -75 L-26 -105 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M77.9 -225 L26 -195 L26 -75 L77.9 -105 Z" fill="#ddd6c3" stroke="$line" sw="2"/></group></group>
+      <group x="300" y="300" at="=cue('b6.0')"><anim prop="opacity" from="0" to="1" dur="0.3"/><anim prop="y" from="330" to="300" dur="0.4" ease="out"/>
+        <rect y="10" w="480" h="560" r="6" fill="$shade"/><rect w="480" h="560" r="6" fill="$tile" stroke="$ink" sw="2.5"/>
+        <path x="436" d="M0 0 L44 44 L0 44 Z" fill="$shade" stroke="$ink" sw="2.5"/>
+        <text x="32" y="60" size="30" weight="700" font="Outfit" fill="$ink" text="Warranty"/>
+        <rect repeat="4" as="k" x="32" y="=110 + k*42" w="=k % 2 ? 360 : 410" h="14" r="7" fill="$shade"/>
+        <rect x="32" y="290" w="410" h="14" r="7" fill="$shade"/>
+        <line x1="26" y1="297" x2="=26 + 422*tx:grow(cue('b6.1'), 0.6)" y2="297" stroke="$ink" sw="5"/>
+        <rect x="26" y="326" w="=422*tx:grow(cue('b6.1') + 0.7, 0.5)" h="40" r="4" fill="$lime"/>
+        <text x="36" y="347" size="24" weight="600" font="Outfit" fill="$ink" text="Repairs by any shop are covered." at="=cue('b6.1') + 0.9"/>
+        <rect repeat="3" as="k" x="32" y="=410 + k*42" w="=k == 2 ? 240 : 410" h="14" r="7" fill="$shade"/>
+        <group x="=lerp(30, 450, tx:grow(cue('b6.1'), 0.6))" y="=tx:grow(cue('b6.1') + 0.7, 0.3) &gt; 0 ? 330 : 290" at="=cue('b6.1') - 0.3"><group rot="-35"><rect x="-14" y="-150" w="28" h="140" r="8" fill="$tile" stroke="$ink" sw="3"/><rect x="-14" y="-150" w="28" h="30" r="8" fill="$ink"/><path d="M-14 -10 L0 22 L14 -10 Z" fill="$tile" stroke="$ink" sw="3"/></group></group>
+      </group>
+    </tx:beat>
+  </timeline>
+</tsvg>

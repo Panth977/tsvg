@@ -98,6 +98,20 @@
   "style": "Developer & engineering"
  },
  {
+  "id": "codebase-explainer",
+  "title": "Codebase explainer",
+  "category": "Product & software",
+  "summary": "How a feature really works, for the dev team: real logos, one blue focus at a time, a packet riding the flow, the code that proves it, the rows it writes, and an honest In short + checked / open ending. Oizom paper or editor-dark; tsvg:tech.",
+  "duration": 37,
+  "layouts": [
+   "landscape",
+   "portrait",
+   "square"
+  ],
+  "thumbT": 22.5,
+  "style": "Product & software"
+ },
+ {
   "id": "terminal-cli-demo",
   "title": "Terminal CLI demo",
   "category": "Product & software",
@@ -496,6 +510,20 @@
   ],
   "thumbT": 25,
   "style": "Social"
+ },
+ {
+  "id": "tech-explainer",
+  "title": "Tech explainer",
+  "category": "Marketing & social",
+  "summary": "Cream paper, outlined logo tiles, boxed labels, pale-green isometric props and a caption that turns green word by word; one document plays in 16:9, 9:16 and 1:1. Built on tsvg:tech.",
+  "duration": 52,
+  "layouts": [
+   "landscape",
+   "portrait",
+   "square"
+  ],
+  "thumbT": 17.5,
+  "style": "Marketing & social"
  },
  {
   "id": "podcast-audiogram",

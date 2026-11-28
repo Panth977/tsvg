@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  tsvg:tech — calm, precise tech explainers in one look, for any format: 16:9 (YouTube, docs, slides),
+  9:16 (Reels / Shorts / TikTok) and 1:1 (LinkedIn / X) from the same document.
+  Cream paper, real logos in outlined tiles, small boxed labels, pale-green isometric props, and a
+  lower-third caption that turns green word by word as it is spoken.
+
+    <tsvg version="0.10" title="Why do torrents get faster?">
+      <import src="tsvg:tech" as="tx"/>
+      <timeline>
+        <tx:beat id="b1" say="The more people download a torrent, / the faster it gets.">
+          <tx:tile x="540" y="760" icon="download" at="=cue('b1.0')"/>
+        </tx:beat>
+        <tx:follow channel="Your Channel" say="Follow Your Channel / for more."/>
+      </timeline>
+    </tsvg>
+
+  The stage. Every beat draws its visuals on one design canvas, 1080 wide, visual zone y 250–1300 (the
+  portrait frame's own coordinates). Portrait shows it 1:1; landscape and square scale it to fit above the
+  caption and centre it, so one document plays in every layout. Canvas x outside 0–1080 is visible only in
+  landscape (x.landscape="…" places extras there).
+  One <tx:beat> = one scene. Its say is cut on "/" into caption chunks (3–7 words); chunk n is the voice line
+  "<beat id>.<n>", so visuals cue on it: at="=cue('b1.1')". See skills/tech-explainer/SKILL.md.
+-->
+<tsvglib name="tech" version="1.0.0" font="Outfit, Inter" params="key=''"
+         doc="Tech explainers in any format (16:9 · 9:16 · 1:1 from one document): cream paper, logo tiles, boxed labels, isometric props, green word-by-word captions. beat · follow · tile · label · pill · wire · box · window · phone · doc · code · tokens · chip · room · stat · headline · shot · packet · sum · qs.">
+  <import src="../icons/icons.tsvgl" as="i"/>
+  <layouts>
+    <layout id="landscape" w="1920" h="1080"/>
+    <layout id="portrait" w="1080" h="1920"/>
+    <layout id="square" w="1080" h="1080"/>
+  </layouts>
+  <options>
+    <option id="lang" label="Language" default="en"><choice id="en" label="English" tts="kokoro:am_michael"/></option>
+    <option id="mix" label="Audio" default="full"><choice id="full" label="Voice + music"/><choice id="speech" label="Speech only"/></option>
+    <option id="theme" label="Theme" default="paper"><choice id="paper" label="Paper"/><choice id="oizom" label="Oizom paper"/><choice id="oizom-dark" label="Editor dark"/></option>
+  </options>
+  <mixes>
+    <mix id="full" voice="1" music="0.12" sfx="0.45"/>
+    <mix id="speech" voice="1" music="0" sfx="0"/>
+  </mixes>
+  <themes>
+    <!-- semantic tokens: focus = the one thing being said · spoken = caption words already said · dim = not yet said · mark = highlighter
+         soft = focus tint · ok/bad (+soft) = passed / failed rows · pale/mid/deep = isometric tints · plate = caption plate -->
+    <theme id="paper" bg="#f8f4e8" fg="#1d231c" ink="#1d231c" line="#5b6656" muted="#8a8d80" dim="#b6b5a8" tile="#fdfbf5" shade="#e2ded0" plate="#f8f4e8e6"
+           focus="#309503" spoken="#309503" soft="#e6f2d8" mark="#c6ee4a" ok="#309503" oksoft="#e6f2d8" bad="#d6452b" badsoft="#f6d5cc"
+           green="#309503" accent="#309503" good="#309503" pale="#e6f2d8" mid="#cfe6b4" deep="#9fcf74" lime="#c6ee4a"/>
+    <!-- Oizom house look: warm paper, navy ink, Oizom blue as the one focus, captions where the spoken word turns ink -->
+    <theme id="oizom" bg="#f4f2ea" fg="#14202e" ink="#14202e" line="#4a5566" muted="#7d838c" dim="#bcbfc4" tile="#fffdf7" shade="#d9d6c8" plate="#f4f2eae6"
+           focus="#0090ff" spoken="#14202e" soft="#cfe5ff" mark="#cfe5ff" ok="#1a7f37" oksoft="#dcefe0" bad="#e0452b" badsoft="#f8d9d2"
+           green="#1a7f37" accent="#0090ff" good="#1a7f37" pale="#e8edf3" mid="#d3dbe5" deep="#a8b7c9" lime="#cfe5ff"/>
+    <theme id="oizom-dark" bg="#0d1117" fg="#e6edf3" ink="#c9d1d9" line="#8b98a8" muted="#8b949e" dim="#3a414b" tile="#161b22" shade="#05080c" plate="#0d1117e6"
+           focus="#2f9bff" spoken="#e6edf3" soft="#0c2d52" mark="#0c2d52" ok="#3fb950" oksoft="#12261a" bad="#ff6b5b" badsoft="#3a1d1a"
+           green="#3fb950" accent="#2f9bff" good="#3fb950" pale="#1c2330" mid="#263040" deep="#3b4a60" lime="#0c2d52"/>
+  </themes>
+  <assets>
+    <font family="Outfit" src="../_shared/fonts/Outfit-500.ttf" weight="500"/>
+    <font family="Outfit" src="../_shared/fonts/Outfit-700.ttf" weight="700"/>
+    <font family="Outfit" src="../_shared/fonts/Outfit-800.ttf" weight="800"/>
+    <font family="Inter" src="../_shared/fonts/Inter.ttf"/>
+    <font family="JetBrains Mono" src="../_shared/fonts/JetBrainsMono.ttf"/>
+    <asset id="bed" src="../_shared/audio/bright.m4a"/>
+    <asset id="pop" src="../_shared/audio/pop.m4a"/>
+    <asset id="whoosh" src="../_shared/audio/whoosh.m4a"/>
+    <asset id="ding" src="../_shared/audio/ding.m4a"/>
+  </assets>
+  <music src="bed" loop="1" vol="0.7"/>
+  <defs>
+    <!-- 0 → 1 → 0 between scene times a and b: focus a thing while the voice is on it -->
+    <fn id="on" args="a,b">clamp((T - a)/0.2, 0, 1)*clamp((b - T)/0.2, 0, 1)</fn>
+    <!-- 0 → 1 eased over d seconds from a -->
+    <fn id="grow" args="a,d">ease(clamp((T - a)/d, 0, 1), 'io')</fn>
+    <!-- 1 → dim between scene times a and b (context that steps back while something else talks) -->
+    <fn id="fade" args="a,b,dim">1 - (1 - dim)*clamp((T - a)/0.3, 0, 1)*clamp((b - T)/0.3, 0, 1)</fn>
+    <symbol id="gear"><circle r="9" fill="none" stroke="$ink" sw="2.5"/><circle r="3" fill="$ink"/>
+      <path d="M0 -14 L0 -10 M0 10 L0 14 M-14 0 L-10 0 M10 0 L14 0 M-10 -10 L-7 -7 M7 7 L10 10 M-10 10 L-7 7 M7 -7 L10 -10" stroke="$ink" sw="3"/></symbol>
+  </defs>
+
+  <!-- one caption chunk: words go grey → green as the clip plays (even pace across the chunk) -->
+  <component id="cap" props="id, text, x=0, y=0, size=0, maxw=0, last=0, color='$spoken', dim='$dim', plate=0" doc="Internal: one word-by-word caption chunk for say id (0 = the layout's default).">
+    <if test="%{plate}">
+      <row x="=(%{x}) &gt; 0 ? (%{x}) : W/2" y="=(%{y}) &gt; 0 ? (%{y}) : (portrait ? 1500 : H - 105)" ax="0.5" ay="0.5" pad="14" r="12" fill="$plate"
+           when="=T &gt;= cue('%{id}') - 0.02 &amp;&amp; (%{last} || T &lt; cueEnd('%{id}') + 0.03)">
+        <text size="=(%{size}) > 0 ? (%{size}) : (portrait ? 60 : 50)" weight="700" font="Outfit" align="center" maxw="=(%{maxw}) > 0 ? (%{maxw}) : (portrait ? 820 : W*0.78)" lh="1.12" split="word" stagger="0" text="%{text}"
+          when="=T &gt;= cue('%{id}') - 0.02 &amp;&amp; (%{last} || T &lt; cueEnd('%{id}') + 0.03)"
+          fill="=mix(%{dim}, %{color}, clamp(((T - cue('%{id}'))/max(0.05, cueEnd('%{id}') - cue('%{id}'))*u_n - u)*4, 0, 1))"/>
+      </row>
+    <else><text x="=(%{x}) > 0 ? (%{x}) : W/2" y="=(%{y}) > 0 ? (%{y}) : (portrait ? 1500 : H - 105)" size="=(%{size}) > 0 ? (%{size}) : (portrait ? 60 : 50)" weight="700" font="Outfit" align="center" maxw="=(%{maxw}) > 0 ? (%{maxw}) : (portrait ? 820 : W*0.78)" lh="1.12" split="word" stagger="0" text="%{text}"
+          when="=T &gt;= cue('%{id}') - 0.02 &amp;&amp; (%{last} || T &lt; cueEnd('%{id}') + 0.03)"
+          fill="=mix(%{dim}, %{color}, clamp(((T - cue('%{id}'))/max(0.05, cueEnd('%{id}') - cue('%{id}'))*u_n - u)*4, 0, 1))"/></else></if>
+  </component>
+
+  <component id="beat" props="say, id='', dur=auto, pad=0.5, in=fade 0.25, chapter='', zoom=1, zx=540, zy=775, cy=0, csize=0, plate=0, stage=tall, kicker=''" doc="One scene: say is cut on '/' into caption chunks (3–7 words); chunk n is voice line '<id>.<n>' (cue it). Visuals go inside, in stage coordinates (1080 wide, y 250–1300). zoom 1.15 = a slow push-in on (zx, zy) across the beat. plate=1 puts a paper plate behind the caption (busy, full-bleed scenes). stage=wide: author in 1920×1080 (content y 40–880, the codebase-explainer default; zx zy then in that space). kicker = small top-left label (topic · part).">
+    <scene id="%{id|_uid}" dur="%{dur}" gap="0.06" pad="%{pad}" in="%{in}" chapter="%{chapter|id}">
+      <each items="%{say}" as="c" sep="/"><say id="%{id|_uid}.%{c_i}" text="%{c}"/></each>
+      <!-- stage: the portrait frame's coordinates, fitted above the caption in landscape / square -->
+      <if test="%{kicker}"><text x="=portrait ? 60 : 96" y="60" size="=portrait ? 26 : 24" font="JetBrains Mono" ls="3" fill="$muted" text="%{kicker}"/></if>
+      <if test="%{stage} == wide">
+      <!-- wide stage: the landscape frame's coordinates (content y 40–880), scaled to the width in portrait / square -->
+      <group x="=(W - 1920*min(W/1920, (H - 200)/880))/2" y="=portrait ? 775 - 460*min(W/1920, (H - 200)/880) : (H - 200)/2 + 20 - 460*min(W/1920, (H - 200)/880)" scale="=min(W/1920, (H - 200)/880)">
+        <group x="%{zx}" y="%{zy}" scale="=1 + (%{zoom} - 1)*ease(clamp(T/sdur, 0, 1), 'io')"><group x="=-(%{zx})" y="=-(%{zy})"><slot/></group></group>
+      </group>
+      <else>
+      <group x="=(W - 1080*(portrait ? 1 : (H - 210)/1050))/2" y="=portrait ? 0 : 30 - 250*(H - 210)/1050" scale="=portrait ? 1 : (H - 210)/1050">
+        <group x="%{zx}" y="%{zy}" scale="=1 + (%{zoom} - 1)*ease(clamp(T/sdur, 0, 1), 'io')"><group x="=-(%{zx})" y="=-(%{zy})"><slot/></group></group>
+      </group>
+      </else></if>
+      <each items="%{say}" as="c" sep="/">
+        <if test="%{c_last}"><cap id="%{id|_uid}.%{c_i}" text="%{c}" y="%{cy}" size="%{csize}" plate="%{plate}" last="1"/>
+        <else><cap id="%{id|_uid}.%{c_i}" text="%{c}" y="%{cy}" size="%{csize}" plate="%{plate}"/></else></if>
+      </each>
+    </scene>
+  </component>
+
+  <component id="follow" props="channel, say, id='', avatar='', icon='sparkles', button='Follow', dur=auto, in=fade 0.25" doc="End card: a window with your channel, the closing line as the caption inside it, and a Follow button.">
+    <scene id="%{id|_uid}" dur="%{dur}" gap="0.06" pad="1.2" in="%{in}" chapter="Follow">
+      <each items="%{say}" as="c" sep="/"><say id="%{id|_uid}.%{c_i}" text="%{c}"/></each>
+      <group x="=(W - 1080*(portrait ? 1 : (H - 210)/1050))/2" y="=portrait ? 0 : 30 - 250*(H - 210)/1050" scale="=portrait ? 1 : (H - 210)/1050">
+      <group x="140" y="620"><anim prop="opacity" from="0" to="1" dur="0.3"/><anim prop="y" from="660" to="620" dur="0.5" ease="out"/>
+        <rect y="10" w="800" h="640" r="22" fill="$shade"/>
+        <rect w="800" h="640" r="22" fill="$tile" stroke="$ink" sw="3"/>
+        <circle x="34" y="32" r="7" fill="$dim"/><circle x="58" y="32" r="7" fill="$dim"/><circle x="82" y="32" r="7" fill="$dim"/>
+        <text x="110" y="32" size="22" weight="600" font="Outfit" fill="$ink" text="%{channel}"/>
+        <rect x="24" y="60" w="752" h="36" r="8" fill="$bg"/>
+        <i:icon name="search" size="20" color="$muted" x="46" y="78"/>
+        <text x="64" y="78" size="20" font="Outfit" fill="$muted" text="%{channel}"/>
+        <circle x="400" y="210" r="74" fill="$focus" at="0.2"><anim prop="scale" from="0" to="1" dur="0.5" ease="back"/></circle>
+        <if test="%{avatar}"><image src="%{avatar}" x="342" y="152" w="116" h="116" fit="contain" at="0.2"/>
+        <else><i:icon name="%{icon}" size="84" color="#ffffff" sw="2.2" x="400" y="210" at="0.3" drawin="0.6"/></else></if>
+        <group x="250" y="520" at="=cueEnd('%{id|_uid}.0')"><anim prop="scale" from="0.6" to="1" dur="0.4" ease="back"/><anim prop="opacity" from="0" to="1" dur="0.2"/>
+          <rect w="300" h="76" r="16" fill="$focus"/>
+          <text x="150" y="38" size="32" weight="700" font="Outfit" align="center" fill="#ffffff" text="+ %{button}"/>
+        </group>
+      </group>
+      <each items="%{say}" as="c" sep="/">
+        <if test="%{c_last}"><cap id="%{id|_uid}.%{c_i}" text="%{c}" x="540" y="1000" size="50" maxw="640" color="$ink" last="1"/>
+        <else><cap id="%{id|_uid}.%{c_i}" text="%{c}" x="540" y="1000" size="50" maxw="640" color="$ink"/></else></if>
+      </each>
+      </group>
+    </scene>
+  </component>
+
+  <component id="tile" props="x, y, src='', icon='', glyph='', size=170, label='', sub='', at=0, hl=0, op=1, color='$ink', dark=0" doc="A logo tile (rounded, ink outline, soft drop): src image, Lucide icon or glyph. label/sub under it. dark=1 on a black logo (deno, github) inverts it on the editor-dark theme. hl = 0–1 green ring, op = opacity (e.g. =tx:fade(a, b, 0.3)).">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}">
+      <anim prop="scale" from="0.6" to="1" dur="0.4" ease="back"/><anim prop="opacity" from="0" to="1" dur="0.2"/>
+      <rect x="=-(%{size})/2" y="=-(%{size})/2 + 6" w="%{size}" h="%{size}" r="=(%{size})*0.24" fill="$shade"/>
+      <rect x="=-(%{size})/2" y="=-(%{size})/2" w="%{size}" h="%{size}" r="=(%{size})*0.24" fill="$tile" stroke="$ink" sw="2.5"/>
+      <rect x="=-(%{size})/2" y="=-(%{size})/2" w="%{size}" h="%{size}" r="=(%{size})*0.24" fill="none" stroke="$focus" sw="6" opacity="%{hl}"/>
+      <if test="%{src}"><if test="%{dark}"><image src="%{src}" x="=-(%{size})*0.32" y="=-(%{size})*0.32" w="=(%{size})*0.64" h="=(%{size})*0.64" fit="contain" filter.oizom-dark="invert(1)"/>
+        <else><image src="%{src}" x="=-(%{size})*0.32" y="=-(%{size})*0.32" w="=(%{size})*0.64" h="=(%{size})*0.64" fit="contain"/></else></if></if>
+      <if test="%{icon}"><group scale="=(%{size})/150"><i:icon name="%{icon}" size="82" color="%{color}" sw="2"/></group></if>
+      <if test="%{glyph}"><text y="2" size="=(%{size})*0.42" weight="800" font="Outfit" align="center" fill="%{color}" text="%{glyph}"/></if>
+      <if test="%{label}"><text y="=(%{size})/2 + 40" size="36" weight="700" font="Outfit" align="center" fill="$ink" text="%{label}"/></if>
+      <if test="%{sub}"><text y="=(%{size})/2 + 80" size="26" font="Outfit" align="center" fill="$muted" text="%{sub}"/></if>
+    </group>
+    </group>
+  </component>
+
+  <component id="label" props="x, y, text, sub='', tx='', ty='', at=0, hl=0, op=1, size=36, mono=0" doc="Small boxed label centred on x y (title + optional small line). tx ty: a leader line down/out to that point, drawn first.">
+    <group opacity="%{op}">
+    <group at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.25"/>
+      <if test="%{tx}">
+        <line x1="%{x}" y1="%{y}" x2="%{tx}" y2="%{ty}" stroke="$ink" sw="2.5"><anim prop="draw" from="0" to="1" dur="0.35"/></line>
+        <circle x="%{tx}" y="%{ty}" r="6" fill="$tile" stroke="$ink" sw="2.5"/>
+      </if>
+      <group x="%{x}" y="%{y}"><anim prop="scale" from="0.85" to="1" dur="0.3" ease="back"/>
+        <col ax="0.5" ay="0.5" pad="12" gap="2" align="center" fill="$tile" stroke="$ink" sw="2.5" r="6">
+          <if test="%{mono}"><text size="%{size}" weight="700" font="JetBrains Mono" fill="$ink" align="center" text="%{text}"/>
+          <else><text size="%{size}" weight="700" font="Outfit" fill="$ink" align="center" text="%{text}"/></else></if>
+          <if test="%{sub}"><text size="24" font="Outfit" fill="$muted" align="center" text="%{sub}"/></if>
+        </col>
+        <group opacity="%{hl}"><col ax="0.5" ay="0.5" pad="12" gap="2" align="center" fill="$soft" stroke="$focus" sw="4" r="6">
+          <if test="%{mono}"><text size="%{size}" weight="700" font="JetBrains Mono" fill="$ink" align="center" text="%{text}"/>
+          <else><text size="%{size}" weight="700" font="Outfit" fill="$ink" align="center" text="%{text}"/></else></if>
+          <if test="%{sub}"><text size="24" font="Outfit" fill="$muted" align="center" text="%{sub}"/></if>
+        </col></group>
+      </group>
+    </group>
+    </group>
+  </component>
+
+  <component id="pill" props="x, y, text, kind=green, at=0, op=1, size=36" doc="A pill: kind green (white on green), dark (white on ink), gear (outlined, gear icon: an engine / setting name).">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="scale" from="0.6" to="1" dur="0.35" ease="back"/><anim prop="opacity" from="0" to="1" dur="0.2"/>
+      <if test="%{kind} == gear">
+        <row ax="0.5" ay="0.5" pad="10" gap="10" align="center" fill="$tile" stroke="$ink" sw="2.5" r="8">
+          <group w="36" h="36"><use ref="gear" x="18" y="18" scale="1.2"/></group>
+          <text size="%{size}" weight="600" font="Outfit" fill="$ink" text="%{text}"/>
+        </row>
+      </if>
+      <if test="%{kind} == dark">
+        <row ax="0.5" ay="0.5" pad="12" fill="$ink" r="40"><text size="%{size}" weight="700" font="Outfit" fill="#ffffff" text="%{text}"/></row>
+      </if>
+      <if test="%{kind} == green">
+        <row ax="0.5" ay="0.5" pad="12" fill="$focus" r="40"><text size="%{size}" weight="700" font="Outfit" fill="#ffffff" text="%{text}"/></row>
+      </if>
+    </group>
+    </group>
+  </component>
+
+  <component id="wire" props="d, at=0, d2=0.5, hl=0, op=1, sw=3.5" doc="A thin ink line or curve (SVG path d) that draws on from at over d2 s; hl 0–1 turns it green.">
+    <group at="%{at}" opacity="%{op}">
+      <path d="%{d}" fill="none" stroke="$ink" sw="%{sw}"><anim prop="draw" from="0" to="1" dur="%{d2}" ease="io"/></path>
+      <path d="%{d}" fill="none" stroke="$focus" sw="=%{sw} + 2" opacity="%{hl}"><anim prop="draw" from="0" to="1" dur="%{d2}" ease="io"/></path>
+    </group>
+  </component>
+
+  <!-- isometric box: X axis → down-right, Y axis → down-left, origin = the top face's back corner.
+       w along X, d along Y, h tall. Faces are plain rects under iso transforms (rotate → skew → scale). -->
+  <component id="box" props="x, y, w=200, d=200, h=80, top='$tile', left='$pale', right='$mid', at=0, op=1, sw=2" doc="Isometric box (slab, server, drive, sandbox): x y = top face back corner, w d h sizes, top/left/right face colours. Slot = things on the top face (local x along X, y along Y).">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.25"/><group><anim prop="y" from="-60" to="0" dur="0.45" ease="out"/>
+      <group x="=-0.866*(%{d})" y="=0.5*(%{d})" sky="30" sx="0.866"><rect w="%{w}" h="%{h}" fill="%{left}" stroke="$line" sw="%{sw}"/></group>
+      <group x="=0.866*(%{w})" y="=0.5*(%{w})" sky="-30" sx="-0.866"><rect w="%{d}" h="%{h}" fill="%{right}" stroke="$line" sw="%{sw}"/></group>
+      <group rot="30" skx="-30" sy="0.866"><rect w="%{w}" h="%{d}" fill="%{top}" stroke="$line" sw="%{sw}"/><slot/></group>
+    </group></group>
+    </group>
+  </component>
+
+  <component id="window" props="x, y, w=760, h=520, title='', url='', tilt=0, at=0, op=1, hl=0" doc="An app / browser window (traffic lights, title, optional address bar). tilt = degrees (30 leans it like the right face of an isometric screen, -30 the left). Slot = content, local (0,0) = top-left under the bars.">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.3"/>
+      <group sky="%{tilt}" sx="=cos((%{tilt})*PI/180)">
+        <rect y="8" w="%{w}" h="%{h}" r="18" fill="$shade"/>
+        <rect w="%{w}" h="%{h}" r="18" fill="$tile" stroke="$ink" sw="3"/>
+        <rect w="%{w}" h="%{h}" r="18" fill="none" stroke="$focus" sw="6" opacity="%{hl}"/>
+        <circle x="30" y="28" r="7" fill="$dim"/><circle x="54" y="28" r="7" fill="$dim"/><circle x="78" y="28" r="7" fill="$dim"/>
+        <text x="104" y="28" size="22" weight="600" font="Outfit" fill="$ink" text="%{title}"/>
+        <if test="%{url}">
+          <rect x="20" y="54" w="=%{w} - 40" h="40" r="20" fill="$bg"/>
+          <i:icon name="lock" size="20" color="$ok" x="44" y="74"/>
+          <text x="64" y="74" size="22" font="JetBrains Mono" fill="$ink" text="%{url}"/>
+          <group x="20" y="112"><slot/></group>
+        <else><group x="20" y="56"><slot/></group></else></if>
+      </group>
+    </group>
+    </group>
+  </component>
+
+  <component id="stat" props="x, y, value, sub='', at=0, op=1, size=140" doc="A big number with a lime highlighter swipe behind it (931 GB, 60×, 35M lines). sub = a small line under it.">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.2"/>
+      <rect x="=-(%{size})*1.9" y="=-(%{size})*0.42" w="=(%{size})*3.8" h="=(%{size})*0.84" r="10" fill="$mark" opacity="0.85"><anim prop="w" from="0" to="=(%{size})*3.8" at="0.15" dur="0.4" ease="io"/></rect>
+      <text size="%{size}" weight="800" font="Outfit" align="center" fill="$ink" text="%{value}"><anim prop="scale" from="0.8" to="1" dur="0.35" ease="back"/></text>
+      <if test="%{sub}"><text y="=(%{size})*0.75" size="30" weight="500" font="Outfit" align="center" fill="$muted" text="%{sub}"/></if>
+    </group>
+    </group>
+  </component>
+
+  <component id="headline" props="text, text2='', y=200, at=0, op=1, size=64" doc="A two-line headline at the top: line one ink, line two green (More people, / more speed.).">
+    <group opacity="%{op}">
+    <group at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.3"/><anim prop="y" from="20" to="0" dur="0.4" ease="out"/>
+      <text x="540" y="%{y}" size="%{size}" weight="800" font="Outfit" align="center" fill="$ink" text="%{text}"/>
+      <if test="%{text2}"><text x="540" y="=%{y} + (%{size})*1.1" size="%{size}" weight="800" font="Outfit" align="center" fill="$focus" text="%{text2}"/></if>
+    </group>
+    </group>
+  </component>
+
+  <component id="phone" props="x, y, w=300, h=610, tilt=0, at=0, op=1, hl=0" doc="A phone (ink bezel, notch, screen) at top-left x y. tilt = degrees like window. Slot = the screen, local (0,0) = screen top-left, screen = (w-28)×(h-28).">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.3"/><group><anim prop="y" from="40" to="0" dur="0.45" ease="out"/>
+      <group sky="%{tilt}" sx="=cos((%{tilt})*PI/180)">
+        <rect x="8" y="14" w="%{w}" h="%{h}" r="48" fill="$shade"/>
+        <rect w="%{w}" h="%{h}" r="48" fill="$tile" stroke="$ink" sw="4"/>
+        <rect x="14" y="14" w="=%{w} - 28" h="=%{h} - 28" r="36" fill="$bg" stroke="$line" sw="1.5"/>
+        <group x="14" y="14"><slot/></group>
+        <rect x="=%{w}/2 - 46" y="28" w="92" h="24" r="12" fill="$ink"/>
+        <rect w="%{w}" h="%{h}" r="48" fill="none" stroke="$focus" sw="7" opacity="%{hl}"/>
+      </group>
+    </group></group>
+    </group>
+  </component>
+
+  <component id="doc" props="x, y, title, quotes='', from='', w=440, lines=3, at=0, op=1, hl=0, step=0.5" doc="A paper document (folded corner, title, grey text lines) at top-left x y; quotes = 'a | b' lines that appear highlighted in lime, one every step s (policy wording, a memo, a court filing). from = small source line under it.">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.3"/>
+      <rect y="10" w="%{w}" h="=150 + 52*%{lines} + 58*%{quotes:count}" r="6" fill="$shade"/>
+      <rect w="%{w}" h="=150 + 52*%{lines} + 58*%{quotes:count}" r="6" fill="$tile" stroke="$ink" sw="2.5"/>
+      <path x="=%{w} - 44" d="M0 0 L44 44 L0 44 Z" fill="$shade" stroke="$ink" sw="2.5"/>
+      <text x="32" y="56" size="30" weight="700" font="Outfit" fill="$ink" maxw="=%{w} - 100" text="%{title}"/>
+      <rect x="32" y="=100 + 52*k" w="=%{w} - 64" h="14" r="7" fill="$shade" repeat="%{lines}" as="k"/>
+      <each items="%{quotes}" as="q" sep="|">
+        <group x="32" y="=100 + 52*%{lines} + 58*%{q_i}" at="=%{step}*(%{q_i} + 1)"><anim prop="opacity" from="0" to="1" dur="0.2"/>
+          <rect y="-4" w="=%{w} - 64" h="46" r="4" fill="$mark"><anim prop="w" from="0" to="=%{w} - 64" dur="0.35" ease="out"/></rect>
+          <text x="10" y="19" size="24" weight="600" font="Outfit" fill="$ink" maxw="=%{w} - 84" text="“%{q}”"/>
+        </group>
+      </each>
+      <if test="%{from}"><text y="=180 + 52*%{lines} + 58*%{quotes:count}" size="22" font="Outfit" fill="$muted" text="%{from}"/></if>
+      <rect w="%{w}" h="=150 + 52*%{lines} + 58*%{quotes:count}" r="6" fill="none" stroke="$focus" sw="6" opacity="%{hl}"/>
+    </group>
+    </group>
+  </component>
+
+  <component id="chip" props="x, y, text, icon='', src='', at=0, op=1, hl=0, size=34" doc="A small marker chip centred on x y: an optional logo/icon + bold text. Years and eras on a timeline (G · 2017, 1980s, 2025), a brand next to a fact.">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="scale" from="0.7" to="1" dur="0.35" ease="back"/><anim prop="opacity" from="0" to="1" dur="0.2"/>
+      <row ax="0.5" ay="0.5" pad="12" gap="12" align="center" fill="$tile" stroke="$ink" sw="2.5" r="10">
+        <if test="%{src}"><image src="%{src}" w="=(%{size})*1.1" h="=(%{size})*1.1" fit="contain"/></if>
+        <if test="%{icon}"><group w="=(%{size})*1.1" h="=(%{size})*1.1"><group x="=(%{size})*0.55" y="=(%{size})*0.55" scale="=(%{size})/34"><i:icon name="%{icon}" size="34" color="$ink"/></group></group></if>
+        <text size="%{size}" weight="700" font="Outfit" fill="$ink" text="%{text}"/>
+      </row>
+      <group opacity="%{hl}"><row ax="0.5" ay="0.5" pad="12" gap="12" align="center" fill="none" stroke="$focus" sw="5" r="10">
+        <if test="%{src}"><group w="=(%{size})*1.1" h="=(%{size})*1.1"/></if><if test="%{icon}"><group w="=(%{size})*1.1" h="=(%{size})*1.1"/></if>
+        <text size="%{size}" weight="700" font="Outfit" fill="none" text="%{text}"/>
+      </row></group>
+    </group>
+    </group>
+  </component>
+
+  <component id="code" props="x, y, title, lines, w=640, mark='', at=0, op=1, size=22" doc="A code / debugger window at top-left x y. lines = 'text :: ok | text :: bad | text :: hl | text' (one per |); ok rows turn green, bad rows red and hl rows take the focus colour at scene time mark (=cue(…); default: with the window). Use a tx:label with tx ty to name the highlighted part.">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.3"/>
+      <rect y="8" w="%{w}" h="=64 + (%{size})*1.6*%{lines:count}" r="12" fill="$shade"/>
+      <rect w="%{w}" h="=64 + (%{size})*1.6*%{lines:count}" r="12" fill="$tile" stroke="$ink" sw="2.5"/>
+      <circle x="24" y="24" r="6" fill="$ok"/><circle x="44" y="24" r="6" fill="$dim"/><circle x="64" y="24" r="6" fill="$dim"/>
+      <text x="86" y="24" size="22" weight="600" font="Outfit" fill="$ink" text="%{title}"/>
+      <line x1="0" y1="46" x2="%{w}" y2="46" stroke="$ink" sw="2"/>
+      <each items="%{lines}" as="ln" sep="|" fields="t,k">
+        <group y="=56 + (%{size})*1.6*%{ln_i}">
+          <if test="%{ln.k} == ok"><group at="%{mark|at}"><anim prop="opacity" from="0" to="1" dur="0.3"/><rect x="10" w="=%{w} - 20" h="=(%{size})*1.6" fill="$oksoft" stroke="$ok" sw="2"/></group></if>
+          <if test="%{ln.k} == hl"><group at="%{mark|at}"><anim prop="opacity" from="0" to="1" dur="0.3"/><rect x="10" w="=%{w} - 20" h="=(%{size})*1.6" fill="$soft" stroke="$focus" sw="2.5"/></group></if>
+          <if test="%{ln.k} == bad"><group at="%{mark|at}"><anim prop="opacity" from="0" to="1" dur="0.3"/><rect x="10" w="=%{w} - 20" h="=(%{size})*1.6" fill="$badsoft" stroke="$bad" sw="2"/></group></if>
+          <text x="22" y="=(%{size})*0.8" size="%{size}" font="JetBrains Mono" fill="$ink" text="\%{ln.t}"/>
+        </group>
+      </each>
+    </group>
+    </group>
+  </component>
+
+  <component id="tokens" props="x, y, items, at=0, step=0.15, sweep=0, op=1, size=30" doc="A row of word chips centred on x y (how a model sees text: The | bot | won). They pop in one every step s from at; sweep = seconds per chip for a lime highlight that walks along them afterwards (0 = none).">
+    <group opacity="%{op}" at="%{at}">
+    <row x="%{x}" y="%{y}" ax="0.5" ay="0.5" gap="10">
+      <each items="%{items}" as="tk" sep="|">
+        <row pad="10" r="8" stroke="$ink" sw="2.5" opacity="0" fill="=(%{sweep}) &gt; 0 &amp;&amp; T - T0 &gt; (%{step})*%{items:count} &amp;&amp; floor((T - T0 - (%{step})*%{items:count})/(%{sweep})) % %{items:count} == %{tk_i} ? $mark : $tile">
+          <anim prop="opacity" from="0" to="1" at="=(%{step})*%{tk_i}" dur="0.15"/>
+          <text size="%{size}" weight="600" font="Outfit" fill="$ink" text="%{tk}"/>
+        </row>
+      </each>
+    </row>
+    </group>
+  </component>
+
+  <component id="room" props="x, y, w=700, d=560, h=300, floor='$tile', wall='$pale', wall2='$tile', at=0, op=1, sw=2" doc="An isometric room cutaway (floor + two back walls): living room, office, bedroom. x y = the back corner on the floor; walls rise h above it. Furnish it with tx:box props and tiles in stage coordinates.">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.4"/>
+      <group x="0" y="=-(%{h})" sky="30" sx="0.866"><rect w="%{w}" h="%{h}" fill="%{wall}" stroke="$line" sw="%{sw}"/></group>
+      <group x="0" y="=-(%{h})" sky="-30" sx="-0.866"><rect w="%{d}" h="%{h}" fill="%{wall2}" stroke="$line" sw="%{sw}"/></group>
+      <group rot="30" skx="-30" sy="0.866"><rect w="%{w}" h="%{d}" fill="%{floor}" stroke="$line" sw="%{sw}"/></group>
+    </group>
+    </group>
+  </component>
+
+  <component id="shot" props="x, y, src, w=1100, url='', box='', mark='', tag='', at=0, op=1, hl=1" doc="A real screenshot (1920×1080 PNG) in a browser window at top-left x y, w wide. box = 'x y w h' fractions of the image: a focus ring (+ tag above it) appears at scene time mark (=cue(…); default: with the window). Zoom into the control with the beat's zoom zx zy.">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.3"/>
+      <rect y="10" w="%{w}" h="=(%{w})*0.5625 + 52" r="16" fill="$shade"/>
+      <rect w="%{w}" h="=(%{w})*0.5625 + 52" r="16" fill="$tile" stroke="$ink" sw="3"/>
+      <circle x="26" y="26" r="7" fill="$dim"/><circle x="50" y="26" r="7" fill="$dim"/><circle x="74" y="26" r="7" fill="$dim"/>
+      <if test="%{url}"><rect x="104" y="10" w="=(%{w}) - 130" h="32" r="16" fill="$bg"/><text x="124" y="26" size="20" font="JetBrains Mono" fill="$muted" text="%{url}"/></if>
+      <image src="%{src}" x="0" y="52" w="%{w}" h="=(%{w})*0.5625" fit="cover"/>
+      <rect x="0" y="52" w="%{w}" h="=(%{w})*0.5625" fill="none" stroke="$ink" sw="2"/>
+      <if test="%{box}">
+        <group opacity="%{hl}"><group at="%{mark|at}"><anim prop="opacity" from="0" to="1" dur="0.25"/>
+          <rect x="=num('%{box}', 0)*(%{w}) - 8" y="=52 + num('%{box}', 1)*(%{w})*0.5625 - 8" w="=num('%{box}', 2)*(%{w}) + 16" h="=num('%{box}', 3)*(%{w})*0.5625 + 16" r="10" fill="none" stroke="$focus" sw="5"/>
+          <if test="%{tag}"><row x="=num('%{box}', 0)*(%{w}) - 8" y="=52 + num('%{box}', 1)*(%{w})*0.5625 - 20" ay="1" pad="8" r="8" fill="$focus"><text size="24" weight="700" font="Outfit" fill="#ffffff" text="%{tag}"/></row></if>
+        </group></group>
+      </if>
+    </group>
+    </group>
+  </component>
+
+  <component id="packet" props="x1, y1, x2, y2, label='', at=0, d=1.2, color='$focus'" doc="A packet (small cube + chip label: POST /login, A7F3) that travels from (x1, y1) to (x2, y2) in d s from at, then fades. Pair with a tx:wire on the same line.">
+    <group at="%{at}" x="=lerp(%{x1}, %{x2}, ease(clamp((T - T0)/(%{d}), 0, 1), 'io'))" y="=lerp(%{y1}, %{y2}, ease(clamp((T - T0)/(%{d}), 0, 1), 'io'))" opacity="=1 - clamp((T - T0 - (%{d}) - 0.2)/0.3, 0, 1)">
+      <rect x="-16" y="-16" w="32" h="32" r="8" fill="%{color}" stroke="$ink" sw="3"/>
+      <if test="%{label}"><row y="-30" ax="0.5" ay="1" pad="6" r="6" fill="$tile" stroke="$ink" sw="2"><text size="22" weight="700" font="JetBrains Mono" fill="$ink" text="%{label}"/></row></if>
+    </group>
+  </component>
+
+  <component id="sum" props="x, y, text, w=1100, kicker='In short', at=0, op=1, size=46" doc="The ending card centred on x y: a small kicker and one sentence a teammate could repeat in standup. text takes rich markup: [words]($focus) to colour the key part, **bold**.">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.3"/><anim prop="scale" from="0.95" to="1" dur="0.35" ease="out"/>
+      <col ax="0.5" ay="0.5" w="%{w}" pad="36" gap="14" fill="$tile" stroke="$ink" sw="4" r="18">
+        <text size="22" font="JetBrains Mono" ls="3" fill="$muted" text="%{kicker}"/>
+        <text size="%{size}" weight="700" font="Outfit" fill="$ink" maxw="=(%{w}) - 72" lh="1.2" rich="1" text="%{text}"/>
+      </col>
+    </group>
+    </group>
+  </component>
+
+  <component id="qs" props="x, y, items, w=1000, at=0, step=0.6, openat='', op=1, size=30" doc="What we checked and what is still open, top-left at x y. items = 'done :: Logout deletes the key — read in the code | open :: What happens when Redis is down? — not checked'. Done rows appear one every step s from at; open rows (focus colour) at scene time openat (=cue(…), default: with the done rows).">
+    <group opacity="%{op}">
+    <group x="%{x}" y="%{y}" at="%{at}"><anim prop="opacity" from="0" to="1" dur="0.3"/>
+      <rect y="8" w="%{w}" h="=40 + (%{size})*2*%{items:count}" r="16" fill="$shade"/>
+      <rect w="%{w}" h="=40 + (%{size})*2*%{items:count}" r="16" fill="$tile" stroke="$ink" sw="3"/>
+      <each items="%{items}" as="q" sep="|" fields="k,t">
+        <group x="30" y="=20 + (%{size})*(2*%{q_i} + 1)">
+          <if test="%{q.k} == done"><group opacity="0"><anim prop="opacity" from="0" to="1" at="=(%{step})*%{q_i}" dur="0.3"/>
+            <rect y="=-(%{size})*0.55" w="=(%{size})*1.1" h="=(%{size})*1.1" r="6" fill="$ok"/>
+            <text x="=(%{size})*0.55" size="=(%{size})*0.8" weight="800" align="center" fill="#ffffff" text="✓"/>
+            <text x="=(%{size})*1.6" size="%{size}" weight="600" font="Outfit" fill="$ink" text="%{q.t}"/>
+          </group></if>
+          <if test="%{q.k} == open"><group at="%{openat|at}"><anim prop="opacity" from="0" to="1" dur="0.3"/>
+            <rect y="=-(%{size})*0.55" w="=(%{size})*1.1" h="=(%{size})*1.1" r="6" fill="none" stroke="$focus" sw="3" dash="6 5"/>
+            <text x="=(%{size})*1.6" size="%{size}" weight="600" font="Outfit" fill="$focus" text="%{q.t}"/>
+          </group></if>
+        </group>
+      </each>
+    </group>
+    </group>
+  </component>
+</tsvglib>

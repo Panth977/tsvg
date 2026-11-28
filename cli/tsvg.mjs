@@ -4,7 +4,7 @@
 //   tsvg check    <file> [--fast]                compiler: errors with line numbers, typos, off-frame/overlapping text
 //   tsvg preview  <file>                         contact sheet PNG per layout (every scene + its narration)
 //   tsvg make     <file.tsvg>                    check → bake voices → check → preview sheets → pack .tsvgz (one step)
-//   tsvg styles                                  list the 60 style templates
+//   tsvg styles                                  list the 62 style templates
 //   tsvg lib [name]                              the built-in libraries; with a name: its components and props
 //   tsvg icons [word]                            icon names in tsvg:icons
 //   tsvg captions <file> [--lang gu] [--srt] [-o out.vtt]   the narration as WebVTT / SRT
@@ -250,7 +250,7 @@ async function libCmd() {
     return;
   }
   const L = TSVG.describeLib(await loadOne(pos[0]));
-  const as = flag('as', L.name === 'explainer' ? 'ex' : L.name[0]);
+  const as = flag('as', L.name === 'explainer' ? 'ex' : L.name === 'tech' ? 'tx' : L.name[0]);
   console.log(`<import src="${/^(tsvg|jsr|https?):|[/.]/.test(pos[0]) ? pos[0] : 'tsvg:' + pos[0]}" as="${as}"${L.params.map((p) => ` ${p.name}="${p.dflt || ''}"`).join('')}/>   ${L.name} ${L.version} · ${L.doc}\n`);
   for (const c of L.components) {
     const req = c.props.filter((p) => p.required).map((p) => `${p.name}="…"`); const opt = c.props.filter((p) => !p.required).map((p) => `${p.name}="${p.dflt}"`);
@@ -333,7 +333,7 @@ async function make() {
   flags.o = [base]; await cmds.pack();
   console.log(`\nmade in ${((Date.now() - t0) / 1000).toFixed(0)}s · ${r.warnings.length} warning(s)`);
   console.log('look at:  ' + sheets.join('  '));
-  console.log('attach:   ' + resolve(base) + '   (e.g. node ~/Dev/PROJECTS/TaskManager/workspaces/ws.mjs upload <ws> <KEY> ' + resolve(base) + ')');
+  console.log('share:    ' + resolve(base) + '   (or one offline page: tsvg pack ' + relative(process.cwd(), src.path) + ' --html)');
 }
 // new <dir> [--style id | --template report]: a ready-to-edit .tsvg with its files copied in, no baked voices
 async function scaffold() {
@@ -556,7 +556,7 @@ window.bounds = (times, opts, layoutId) => {
         if (off.length && visible && !b.clipped) out.push({ t, line: b.line, text: b.text, kind: 'off', where: off.join('+'), by: Math.round(Math.max(-b.x0, b.x1 - L.w, -b.y0, b.y1 - L.h)) });
       }
       for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
-        const a = boxes[i], b = boxes[j]; if (a.line === b.line) continue;
+        const a = boxes[i], b = boxes[j]; if (a.line === b.line) continue; if (a.text === b.text && Math.abs(a.x0 - b.x0) < 2 && Math.abs(a.y0 - b.y0) < 2) continue; // the same text layered on itself (a highlight copy)
         const ix = Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0), iy = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0);
         if (ix <= 0 || iy <= 0 || a.clipped || b.clipped) continue;
         const area = (q) => Math.max(1, (q.x1 - q.x0) * (q.y1 - q.y0));

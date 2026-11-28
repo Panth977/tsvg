@@ -279,7 +279,7 @@ atom    := number | 'string' | "string" | name | $token | name '(' args ')' | '(
 &lt;/tsvglib&gt;</pre>
 <ul>
   <li><b>Merging.</b> The document comes first, then its imports in order, then theirs. Layouts: the document's replace the library's. Options, mixes: merged by id (the first wins, so a document can redefine <code>lang</code> with more languages). Themes: merged by id, token by token (<code>&lt;theme id="dark" accent="#e4572e"/&gt;</code> changes one token). Music, backdrop, overlay: the library's only when the document has none. Fonts and assets nothing uses are dropped; <code>&lt;font only="gu"&gt;</code> ships only when a <code>gu</code> choice exists.</li>
-  <li><b>Names.</b> A library's ids (defs, fns, data, strings, assets) become <code>name__id</code>, so they never clash. Inside the library they keep their short names; anywhere, <code>alias:id</code> points into an import: <code>ref="b:tick"</code>, <code>fill="url(#b:ink)"</code>, <code>text="@b:hello"</code>, <code>src="b:pad"</code>, <code>s('b:x')</code>, <code>data('b:x', i)</code>.</li>
+  <li><b>Names.</b> A library's ids (defs, fns, data, strings, assets) become <code>name__id</code>, so they never clash. Inside the library they keep their short names; anywhere, <code>alias:id</code> points into an import: <code>ref="b:tick"</code>, <code>fill="url(#b:ink)"</code>, <code>text="@b:hello"</code>, <code>src="b:pad"</code>, <code>s('b:x')</code>, <code>data('b:x', i)</code>, and a library's functions inside expressions: <code>=b:wave(t)</code>.</li>
   <li><b>Files.</b> Paths are relative to the library file. Packages carry them under <code>lib/</code>.</li>
 </ul>
 <h3 id="components">13.3 Components</h3>

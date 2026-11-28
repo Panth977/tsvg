@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Devices and screens — a reference board for the tech-explainer skill: six original scenes in the tsvg:tech paper look.
+     Isometric props are plain paths (X → down-right, Y → down-left, up = −y); flat content sits on a plane with
+     rot="30" skx="-30" sy="0.866" (floor), sky="30" sx="0.866" (wall facing down-left) or sky="-30" sx="0.866" (facing down-right). -->
+<tsvg version="0.10" title="Devices and screens">
+  <import src="tsvg:tech" as="tx"/>
+  <import src="tsvg:icons" as="i"/>
+  <layouts><layout id="portrait" w="1080" h="1920"/></layouts>
+  <timeline>
+    <tx:beat id="b1" chapter="Battery health" plate="1" say="Your laptop says / the battery is at 82%. / But 82% of what?">
+      <group x="-40" y="980" scale="1.12">
+        <group x="0" y="-720"><group sky="30" sx="0.866"><rect w="1100" h="720" r="30" fill="$tile" stroke="$ink" sw="4"/><rect x="26" y="26" w="1048" h="668" r="14" fill="$bg" stroke="$line" sw="2"/>
+          <tx:window x="80" y="70" w="940" h="560" title="Battery" at="0.1">
+            <i:icon name="battery-charging" size="54" color="$ink" x="36" y="50"/>
+            <text x="80" y="50" size="44" weight="700" font="Outfit" fill="$ink" text="Battery health"/>
+            <rect x="10" y="110" w="880" h="34" r="17" fill="$shade"/>
+            <rect x="10" y="110" w="722" h="34" r="17" fill="$green" at="=cue('b1.1')"><anim prop="w" from="0" to="722" dur="0.7" ease="out"/></rect>
+            <rect x="10" y="190" w="460" h="150" r="12" fill="$lime" at="=cue('b1.1') + 0.3"><anim prop="w" from="0" to="460" dur="0.4" ease="io"/></rect>
+            <text x="30" y="268" size="160" weight="800" font="Outfit" fill="$ink" text="82%" at="=cue('b1.1')"><anim prop="scale" from="0.8" to="1" dur="0.35" ease="back"/></text>
+            <text x="500" y="268" size="40" weight="500" font="Outfit" fill="$muted" text="max capacity" at="=cue('b1.1') + 0.4"/>
+          </tx:window></group></group>
+        <path d="M0 0 L952.6 550 L294.4 930 L-658.2 380 Z" fill="$tile" stroke="$ink" sw="3"/><path d="M-658.2 380 L294.4 930 L294.4 964 L-658.2 414 Z" fill="#ece6d6" stroke="$ink" sw="3"/><path d="M952.6 550 L294.4 930 L294.4 964 L952.6 584 Z" fill="#ddd6c3" stroke="$ink" sw="3"/>
+        <group x="-17.3" y="60"><group rot="30" skx="-30" sy="0.866"><rect repeat="70" as="k" x="=(k % 14)*71" y="=floor(k/14)*64" w="62" h="54" r="9" fill="$tile" stroke="$line" sw="2"/>
+          <rect x="320" y="370" w="360" h="300" r="16" fill="none" stroke="$line" sw="2.5"/></group></group>
+        <path d="M692.8 710 L640.8 740 L640.8 754 L692.8 724 Z" fill="$ink" stroke="$line" sw="1"/>
+        <path d="M666.82 732 C 788.06 802 796.72 880 952.6 910" fill="none" stroke="$ink" sw="9" cap="round"/>
+        <path d="M666.82 732 C 788.06 802 796.72 880 952.6 910" fill="none" stroke="$tile" sw="5" cap="round"/></group>
+    </tx:beat>
+
+    <tx:beat id="b2" chapter="TV update" zoom="1.06" zx="560" zy="700" say="Even your TV / quietly downloads / a 1.6 gigabyte update.">
+      <group x="400" y="800" scale="1.45">
+        <path d="M0 -780 L1004.6 -200 L1004.6 320 L0 -260 Z" fill="none" stroke="$dim" sw="2"/>
+        <path d="M0 -780 L-1004.6 -200 L-1004.6 320 L0 -260 Z" fill="none" stroke="$dim" sw="2"/>
+        <group x="-363.7" y="90"><group rot="30" skx="-30" sy="0.866"><rect w="760" h="420" r="10" fill="none" stroke="$dim" sw="2.5"/><rect x="24" y="24" w="712" h="372" r="6" fill="none" stroke="$dim" sw="1.5"/></group></group>
+        <path d="M0 -150 L571.6 180 L398.4 280 L-173.2 -50 Z" fill="$tile" stroke="$line" sw="2"/><path d="M-173.2 -50 L398.4 280 L398.4 430 L-173.2 100 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M571.6 180 L398.4 280 L398.4 430 L571.6 330 Z" fill="#ddd6c3" stroke="$line" sw="2"/>
+        <group x="-173.2" y="-50"><group sky="30" sx="0.866"><rect repeat="4" as="k" x="=12 + k*162" y="14" w="150" h="122" r="6" fill="none" stroke="$line" sw="2"/><rect repeat="4" as="k" x="=74 + k*162" y="30" w="26" h="6" r="3" fill="$line"/></group></group>
+        <path d="M173.2 10 L277.1 70 L225.2 100 L121.2 40 Z" fill="#4a5148" stroke="$line" sw="2"/><path d="M121.2 40 L225.2 100 L225.2 110 L121.2 50 Z" fill="#363c35" stroke="$line" sw="2"/><path d="M277.1 70 L225.2 100 L225.2 110 L277.1 80 Z" fill="#2a2f29" stroke="$line" sw="2"/>
+        <path d="M-20.8 -408 L446.9 -138 L434.7 -131 L-32.9 -401 Z" fill="$ink" stroke="$ink" sw="2"/><path d="M-32.9 -401 L434.7 -131 L434.7 179 L-32.9 -91 Z" fill="$ink" stroke="$ink" sw="2"/><path d="M446.9 -138 L434.7 -131 L434.7 179 L446.9 172 Z" fill="$ink" stroke="$ink" sw="2"/>
+        <group x="-19.1" y="-377"><group sky="30" sx="0.866"><rect w="508" h="290" fill="$tile"/>
+  <tx:tile x="110" y="132" icon="refresh-cw" size="150" at="0.2"/>
+  <text x="215" y="86" size="30" weight="700" font="Outfit" fill="$ink" text="System update"/>
+  <text x="215" y="236" size="24" font="Outfit" fill="$muted" text="1.6 GB"/>
+  <rect x="215" y="160" w="260" h="18" r="9" fill="$shade"/>
+  <rect x="215" y="160" w="34" h="18" r="9" fill="$green" at="=cue('b2.1')"><anim prop="w" from="0" to="34" dur="0.6" ease="out"/></rect>
+  <text x="475" y="150" size="24" weight="700" font="Outfit" align="right" fill="$green" text="12%" at="=cue('b2.1') + 0.3"/></group></group>
+        <path d="M0 -30 L294.4 140 L263.3 158 L-31.2 -12 Z" fill="#4a5148" stroke="$line" sw="2"/><path d="M-31.2 -12 L263.3 158 L263.3 188 L-31.2 18 Z" fill="#363c35" stroke="$line" sw="2"/><path d="M294.4 140 L263.3 158 L263.3 188 L294.4 170 Z" fill="#2a2f29" stroke="$line" sw="2"/>
+        <path d="M346.4 148 L433 198 L377.6 230 L291 180 Z" fill="#4a5148" stroke="$line" sw="2"/><path d="M291 180 L377.6 230 L377.6 252 L291 202 Z" fill="#363c35" stroke="$line" sw="2"/><path d="M433 198 L377.6 230 L377.6 252 L433 220 Z" fill="#2a2f29" stroke="$line" sw="2"/>
+        <path d="M360.3 229 L370.6 235 L370.6 241 L360.3 235 Z" fill="$lime" stroke="$line" sw="0"/>
+        <path d="M571.6 120 L635.6 157 L571.6 194 L507.5 157 Z" fill="$tile" stroke="$line" sw="2"/><path d="M507.5 157 L571.6 194 L571.6 444 L507.5 407 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M635.6 157 L571.6 194 L571.6 444 L635.6 407 Z" fill="#ddd6c3" stroke="$line" sw="2"/>
+        <group x="507.5" y="157"><group sky="30" sx="0.866"><circle x="37" y="60" r="20" fill="none" stroke="$line" sw="2"/><circle x="37" y="150" r="28" fill="none" stroke="$line" sw="2"/></group></group>
+        <line x1="-17.32" y1="-120" x2="-60.62" y2="-325" stroke="$ink" sw="4"/><circle x="-60.62" y="-325" r="8" fill="$tile" stroke="$ink" sw="3"/></group>
+    </tx:beat>
+
+    <tx:beat id="b3" chapter="Which way" say="So how does your phone / know which way / you're facing?">
+      <group x="540" y="760" rot="-10" scale="1.38"><group at="0.1"><anim prop="opacity" from="0" to="1" dur="0.3"/><anim prop="y" from="40" to="0" dur="0.5" ease="out"/>
+        <rect x="-352" y="-162" w="720" h="340" r="60" fill="$shade"/>
+        <rect x="-360" y="-170" w="720" h="340" r="60" fill="$tile" stroke="$ink" sw="5"/>
+        <rect x="-340" y="-150" w="680" h="300" r="40" fill="$bg" stroke="$line" sw="1.5"/>
+        <group x="-338" y="-148"><rect w="676" h="296" r="36" fill="$pale"/>
+  <path d="M0 210 C 160 180 260 250 420 200 C 540 160 600 190 676 170" fill="none" stroke="#cfe4e2" sw="34"/>
+  <path d="M110 0 L210 296 M0 96 L676 60 M470 0 L520 296" fill="none" stroke="$line" sw="30" cap="round"/>
+  <path d="M110 0 L210 296 M0 96 L676 60 M470 0 L520 296" fill="none" stroke="$tile" sw="24" cap="round"/>
+  <rect x="250" y="120" w="150" h="56" r="8" fill="$mid" stroke="$line" sw="2"/>
+  <rect x="560" y="100" w="90" h="60" r="8" fill="$mid" stroke="$line" sw="2"/>
+  <circle x="30" y="130" r="14" fill="$deep" stroke="$line" sw="2"/><circle x="60" y="160" r="14" fill="$deep" stroke="$line" sw="2"/><circle x="320" y="240" r="14" fill="$deep" stroke="$line" sw="2"/><circle x="380" y="250" r="14" fill="$deep" stroke="$line" sw="2"/><circle x="600" y="230" r="14" fill="$deep" stroke="$line" sw="2"/><circle x="640" y="10" r="14" fill="$deep" stroke="$line" sw="2"/>
+  <path d="M160 150 L330 82 L495 78 L500 30" fill="none" stroke="$green" sw="9" dash="2 16" cap="round" at="=cue('b3.1')"><anim prop="draw" from="0" to="1" dur="0.8"/></path>
+  <path d="M160 150 L80 40 A 140 140 0 0 1 250 40 Z" fill="$green" opacity="0.22" at="=cue('b3.1')"><anim prop="scale" from="0" to="1" dur="0.5" ease="out"/></path>
+  <circle x="160" y="150" r="22" fill="$tile" stroke="$ink" sw="2"/><circle x="160" y="150" r="14" fill="$green"/>
+  <group x="500" y="20" at="=cue('b3.2')"><anim prop="scale" from="0" to="1" dur="0.35" ease="back"/><i:icon name="map-pin" size="56" color="$ink"/></group></group>
+        <rect x="-336" y="-46" w="22" h="92" r="11" fill="$ink"/>
+        <rect x="-120" y="-176" w="90" h="8" r="4" fill="$line"/><rect x="-10" y="-176" w="60" h="8" r="4" fill="$line"/>
+      </group></group>
+      <tx:label x="830" y="360" text="Compass" sub="+ GPS" tx="700" ty="560" at="=cue('b3.1') + 0.3" hl="=tx:on(cue('b3.1') + 0.3, sdur)"/>
+    </tx:beat>
+
+    <tx:beat id="b4" chapter="Dial-up" plate="1" say="Back when the internet / came through a phone line, / at 56 kilobits a second.">
+      <group x="560" y="560" scale="1.35">
+        <path d="M-129.9 -225 L822.7 325 L112.6 735 L-840 185 Z" fill="#efe2c4" stroke="$line" sw="2"/><path d="M-840 185 L112.6 735 L112.6 765 L-840 215 Z" fill="#e2d1ab" stroke="$line" sw="2"/><path d="M822.7 325 L112.6 735 L112.6 765 L822.7 355 Z" fill="#d2bf95" stroke="$line" sw="2"/>
+        <path d="M69.3 120 L268.5 235 L95.3 335 L-103.9 220 Z" fill="$tile" stroke="$line" sw="2"/><path d="M-103.9 220 L95.3 335 L95.3 365 L-103.9 250 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M268.5 235 L95.3 335 L95.3 365 L268.5 265 Z" fill="#ddd6c3" stroke="$line" sw="2"/>
+        <path d="M69.3 -250 L398.4 -60 L86.6 120 L-242.5 -70 Z" fill="$tile" stroke="$line" sw="2"/><path d="M-242.5 -70 L86.6 120 L86.6 420 L-242.5 230 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M398.4 -60 L86.6 120 L86.6 420 L398.4 240 Z" fill="#ddd6c3" stroke="$line" sw="2"/>
+        <group x="69.3" y="-220"><group rot="30" skx="-30" sy="0.866"><rect repeat="9" as="k" x="20" y="=20 + k*26" w="260" h="8" r="4" fill="$shade"/></group></group>
+        <group x="-220.8" y="-37.5"><group sky="30" sx="0.866"><rect w="330" h="240" r="22" fill="#e9e2cf" stroke="$line" sw="2"/>
+  <rect x="18" y="16" w="294" h="200" r="16" fill="#26302a" stroke="$ink" sw="3"/>
+  <text x="38" y="52" size="20" font="JetBrains Mono" fill="$deep" text="ATDT 555 0134" when="=T &lt; cue('b4.1')"/>
+  <text x="38" y="52" size="20" font="JetBrains Mono" fill="$lime" text="CONNECT 56000" at="=cue('b4.1')"/>
+  <rect x="38" y="150" w="250" h="16" r="4" fill="none" stroke="$deep" sw="2" at="=cue('b4.1')"/>
+  <rect x="38" y="150" w="170" h="16" r="4" fill="$lime" at="=cue('b4.1') + 0.2"><anim prop="w" from="0" to="170" dur="1.2"/></rect></group></group>
+        <group x="-220.8" y="212.5"><group sky="30" sx="0.866"><rect repeat="4" as="k" x="=90 + k*44" y="8" w="34" h="16" r="8" fill="none" stroke="$line" sw="2"/><circle x="300" y="16" r="11" fill="none" stroke="$line" sw="2"/><circle x="268" y="16" r="4" fill="$green"/></group></group>
+        <path d="M381 110 L493.6 175 L381 240 L268.5 175 Z" fill="$tile" stroke="$line" sw="2"/><path d="M268.5 175 L381 240 L381 470 L268.5 405 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M493.6 175 L381 240 L381 470 L493.6 405 Z" fill="#ddd6c3" stroke="$line" sw="2"/>
+        <group x="268.5" y="205"><group sky="30" sx="0.866"><circle x="65" y="50" r="34" fill="$shade" stroke="$line" sw="2"/><circle x="65" y="50" r="12" fill="$line"/><circle x="65" y="140" r="22" fill="none" stroke="$line" sw="2"/></group></group>
+        <path d="M-311.8 272 L17.3 462 L-112.6 537 L-441.7 347 Z" fill="$tile" stroke="$line" sw="2"/><path d="M-441.7 347 L-112.6 537 L-112.6 555 L-441.7 365 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M17.3 462 L-112.6 537 L-112.6 555 L17.3 480 Z" fill="#ddd6c3" stroke="$line" sw="2"/>
+        <group x="-311.8" y="282"><group rot="30" skx="-30" sy="0.866"><rect repeat="42" as="k" x="=(k % 14)*25" y="=floor(k/14)*30 + 14" w="20" h="22" r="4" fill="$tile" stroke="$line" sw="1.5"/></group></group></group>
+      <group at="0.1"><anim prop="opacity" from="0" to="1" dur="0.3"/><anim prop="y" from="60" to="0" dur="0.5" ease="out"/>
+        <path d="M330 1430 C 420 1330 520 1280 600 1250" fill="none" stroke="$ink" sw="117" cap="round"/><path d="M330 1430 C 420 1330 520 1280 600 1250" fill="none" stroke="$deep" sw="110" cap="round"/>
+        <circle x="610" y="1240" r="48" fill="$tile" stroke="$ink" sw="5"/>
+        <path d="M-60 1960 L-60 1420 C -40 1300 80 1250 180 1250 C 300 1250 400 1310 430 1440 L 470 1960 Z" fill="$deep" stroke="$ink" sw="6"/>
+        <path d="M60 1300 C 100 1240 260 1240 310 1300 C 260 1350 110 1350 60 1300 Z" fill="$mid" stroke="$ink" sw="5"/>
+        <circle x="190" y="1130" r="135" fill="#4b3b2e" stroke="$ink" sw="6"/>
+        <path d="M310 1110 C 330 1100 340 1150 318 1165" fill="#e8c9a8" stroke="$ink" sw="5"/>
+      </group>
+      <tx:label x="820" y="330" text="56 kbit/s" mono="1" sub="about 7 KB a second" at="=cue('b4.2')" hl="=tx:on(cue('b4.2'), sdur)"/>
+    </tx:beat>
+
+    <tx:beat id="b5" chapter="Permissions" say="And every app / that asks for your location / gets a little more.">
+      <group at="0.05"><line repeat="24" as="k" x1="540" y1="740" x2="=540 + 1000*cos(k*PI/12 + 0.13)" y2="=740 + 1000*sin(k*PI/12 + 0.13)" stroke="$dim" sw="2.5" dash="10 12"><anim prop="draw" from="0" to="1" dur="0.8"/></line></group>
+      <rect repeat="10" as="k" x="=540 + (330 + (k % 3)*110)*cos(k*PI/5 + 0.4) - 7" y="=740 + (330 + (k % 3)*110)*sin(k*PI/5 + 0.4) - 7" w="14" h="14" r="2" fill="$muted" at="=0.3 + 0.05*k"/>
+      <tx:phone x="400" y="440" w="280" h="580" tilt="-8" at="0.1">
+        <rect w="252" h="552" r="36" fill="$pale"/>
+        <rect x="20" y="70" w="212" h="90" r="14" fill="$tile" stroke="$line" sw="1.5"/><rect x="20" y="176" w="140" h="14" r="7" fill="$shade"/><rect x="20" y="202" w="180" h="14" r="7" fill="$shade"/>
+        <rect w="252" h="552" r="36" fill="$ink" opacity="0.35" at="=cue('b5.1')"/>
+        <group x="16" y="250" at="=cue('b5.1')"><anim prop="scale" from="0.85" to="1" dur="0.3" ease="back"/><anim prop="opacity" from="0" to="1" dur="0.2"/>
+          <rect w="220" h="240" r="18" fill="$tile" stroke="$ink" sw="2"/>
+          <circle x="110" y="44" r="26" fill="$pale"/><i:icon name="map-pin" size="30" color="$green" x="110" y="44"/>
+          <text x="110" y="100" size="19" weight="700" font="Outfit" align="center" maxw="190" lh="1.15" fill="$ink" text="Allow Weather to use your location?"/>
+          <rect x="16" y="150" w="188" h="36" r="18" fill="$green"/><text x="110" y="168" size="18" weight="700" font="Outfit" align="center" fill="#ffffff" text="Allow while using"/>
+          <text x="110" y="214" size="18" weight="600" font="Outfit" align="center" fill="$muted" text="Don't allow"/>
+        </group>
+      </tx:phone>
+      <tx:tile x="190" y="430" icon="map-pin" size="120" at="=cue('b5.1') + 0.2"/>
+      <tx:tile x="890" y="400" icon="camera" size="120" at="=cue('b5.2')"/>
+      <tx:tile x="170" y="1080" icon="mic" size="120" at="=cue('b5.2') + 0.2"/>
+      <tx:tile x="900" y="1100" icon="contact-round" size="120" at="=cue('b5.2') + 0.4"/>
+    </tx:beat>
+
+    <tx:beat id="b6" chapter="Charge limit" say="So the phone / can stop charging / at 80 percent.">
+      <group at="0"><anim prop="opacity" from="0" to="1" dur="0.35"/><group x="700" y="470" scale="0.9" opacity="0.75">
+        <path d="M0 -360 L519.6 -60 L519.6 300 L0 0 Z" fill="$pale" stroke="$line" sw="2" opacity="0.9"/>
+        <path d="M0 -360 L-519.6 -60 L-519.6 300 L0 0 Z" fill="$tile" stroke="$line" sw="2"/>
+        <group x="0" y="0"><group rot="30" skx="-30" sy="0.866"><rect w="600" h="600" fill="$tile" stroke="$line" sw="2"/></group></group>
+        <path d="M199.2 65 L459 215 L372.4 265 L112.6 115 Z" fill="$tile" stroke="$line" sw="2"/><path d="M112.6 115 L372.4 265 L372.4 345 L112.6 195 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M459 215 L372.4 265 L372.4 345 L459 295 Z" fill="#ddd6c3" stroke="$line" sw="2"/><path d="M199.2 -5 L459 145 L433 160 L173.2 10 Z" fill="$tile" stroke="$line" sw="2"/><path d="M173.2 10 L433 160 L433 230 L173.2 80 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M459 145 L433 160 L433 230 L459 215 Z" fill="#ddd6c3" stroke="$line" sw="2"/>
+        <path d="M26 -115 L86.6 -80 L26 -45 L-34.6 -80 Z" fill="$tile" stroke="$line" sw="2"/><path d="M-34.6 -80 L26 -45 L26 115 L-34.6 80 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M86.6 -80 L26 -45 L26 115 L86.6 80 Z" fill="#ddd6c3" stroke="$line" sw="2"/>
+        <path d="M60.6 255 L199.2 335 L103.9 390 L-34.6 310 Z" fill="#efe2c4" stroke="$line" sw="2"/><path d="M-34.6 310 L103.9 390 L103.9 430 L-34.6 350 Z" fill="#e2d1ab" stroke="$line" sw="2"/><path d="M199.2 335 L103.9 390 L103.9 430 L199.2 375 Z" fill="#d2bf95" stroke="$line" sw="2"/>
+        <path d="M77.9 175 L103.9 190 L86.6 200 L60.6 185 Z" fill="$tile" stroke="$line" sw="2"/><path d="M60.6 185 L86.6 200 L86.6 320 L60.6 305 Z" fill="#efe9da" stroke="$line" sw="2"/><path d="M103.9 190 L86.6 200 L86.6 320 L103.9 310 Z" fill="#ddd6c3" stroke="$line" sw="2"/><path d="M60.6 135 L155.9 190 L95.3 225 L0 170 Z" fill="$pale" stroke="$line" sw="2"/><path d="M0 170 L95.3 225 L95.3 235 L0 180 Z" fill="$mid" stroke="$line" sw="2"/><path d="M155.9 190 L95.3 225 L95.3 235 L155.9 200 Z" fill="$deep" stroke="$line" sw="2"/>
+        <group x="129.9" y="-225"><group sky="30" sx="0.866"><rect w="180" h="120" r="6" fill="$tile" stroke="$line" sw="2"/><line x1="90" y1="0" x2="90" y2="120" stroke="$line" sw="2"/></group></group>
+        <group x="-450.3" y="-70"><group sky="-30" sx="0.866"><rect w="320" h="40" fill="$shade" stroke="$line" sw="2"/></group></group></group></group>
+      <tx:phone x="160" y="250" w="520" h="1080" tilt="-14" at="0.15"><rect w="492" h="1052" r="36" fill="$bg"/>
+  <text x="34" y="80" size="22" weight="700" font="Outfit" fill="$ink" text="9:41"/>
+  <text x="34" y="130" size="24" font="Outfit" fill="$muted" text="‹ Settings"/>
+  <text x="34" y="190" size="48" weight="800" font="Outfit" fill="$ink" text="Battery"/>
+  <rect x="24" y="240" w="444" h="230" r="22" fill="$tile" stroke="$line" sw="2"/>
+  <text x="52" y="290" size="28" weight="700" font="Outfit" fill="$ink" text="Charge limit"/>
+  <rect x="52" y="356" w="388" h="12" r="6" fill="$shade"/>
+  <rect x="52" y="356" w="=lerp(388, 300, tx:grow(cue('b6.2'), 0.6))" h="12" r="6" fill="$green"/>
+  <circle x="=52 + lerp(388, 300, tx:grow(cue('b6.2'), 0.6))" y="362" r="22" fill="$tile" stroke="$green" sw="5"/>
+  <text x="52" y="420" size="22" font="Outfit" fill="$muted" text="70%"/>
+  <text x="352" y="420" size="24" weight="700" font="Outfit" align="center" fill="$green" text="80%" at="=cue('b6.2') + 0.4"/>
+  <text x="440" y="420" size="22" font="Outfit" align="right" fill="$muted" text="100%"/>
+  <rect x="24" y="500" w="444" h="110" r="22" fill="$tile" stroke="$line" sw="2"/>
+  <text x="52" y="558" size="26" weight="700" font="Outfit" fill="$ink" text="Smart charging"/>
+  <rect x="372" y="538" w="72" h="40" r="20" fill="$ink" at="=cue('b6.1')"/><circle x="=lerp(392, 424, tx:grow(cue('b6.1'), 0.3))" y="558" r="15" fill="$tile"/>
+  <rect x="24" y="640" w="444" h="90" r="22" fill="$tile" stroke="$line" sw="2"/>
+  <text x="52" y="690" size="26" weight="700" font="Outfit" fill="$ink" text="Battery health"/><text x="440" y="690" size="26" weight="700" font="Outfit" align="right" fill="$ink" text="82%"/>
+  <rect x="24" y="760" w="444" h="90" r="22" fill="$tile" stroke="$line" sw="2"/>
+  <text x="52" y="810" size="26" weight="700" font="Outfit" fill="$ink" text="Low Power Mode"/><rect x="372" y="790" w="72" h="40" r="20" fill="$shade"/><circle x="392" y="810" r="15" fill="$tile"/></tx:phone>
+    </tx:beat>
+  </timeline>
+</tsvg>

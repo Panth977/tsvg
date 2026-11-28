@@ -1,1 +1,1 @@
-All fonts here are SIL Open Font License 1.1 (from github.com/google/fonts): Inter, Noto Sans Gujarati, JetBrains Mono, Playfair Display, Caveat, Anton, Space Grotesk, VT323.
+All fonts here are SIL Open Font License 1.1 (from github.com/google/fonts): Inter, Noto Sans Gujarati, JetBrains Mono, Playfair Display, Caveat, Anton, Space Grotesk, VT323, Outfit (Copyright 2021 The Outfit Project Authors, github.com/Outfitio/Outfit-Fonts; static 500/700/800 cuts via fontsource).

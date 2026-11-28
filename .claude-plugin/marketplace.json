@@ -1,0 +1,19 @@
+{
+  "name": "tsvg",
+  "owner": {
+    "name": "Panth977",
+    "url": "https://github.com/Panth977"
+  },
+  "metadata": {
+    "description": "TSVG: Timeseries Scalable Vector Graphics, a vector video format that plays without rendering."
+  },
+  "plugins": [
+    {
+      "name": "tsvg",
+      "source": "./",
+      "description": "Make videos as TSVG documents (XML that plays live, no rendering or encoding): write, check, preview and pack .tsvgz videos with the tsvg CLI; tech-explainer and codebase-explainer styles; the player can voice every line in the browser (Kokoro / sanoTTS). For claude.ai, upload the tsvg-video skill (dist/tsvg-video.zip) and videos play inside artifacts.",
+      "version": "0.10.1",
+      "category": "productivity"
+    }
+  ]
+}
